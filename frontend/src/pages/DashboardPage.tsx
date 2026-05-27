@@ -1,7 +1,35 @@
 import { useAutoRefresh } from '@/hooks/useAutoRefresh';
 import { dashboardApi } from '@/api/client';
-import { DashboardSummary, DashboardAlert } from '@/types';
 import LoadingSkeleton from '@/components/common/LoadingSkeleton';
+
+// Map API response to display format
+interface BranchData {
+  branch_code: string;
+  operational_sales: string;
+  paid_pending_posting: string;
+  posted_revenue: string;
+  unreconciled_variance: string;
+  pending_sync_count: number;
+  failed_retry_count: number;
+  last_sync_at: string;
+  is_stale: boolean;
+  queue_alert: boolean;
+  sla_alert: boolean;
+}
+
+interface DashboardData {
+  branches: BranchData[];
+  total_operational_sales: string;
+  total_posted_revenue: string;
+  total_pending_sync_count: number;
+}
+
+interface AlertData {
+  alert_type: string;
+  severity: string;
+  message: string;
+  count: number;
+}
 
 function MetricCard({ label, value, type = 'primary', subtitle, badge }: {
   label: string; value: string; type?: 'primary' | 'warning' | 'danger' | 'info'; subtitle?: string; badge?: string;
@@ -22,7 +50,7 @@ function MetricCard({ label, value, type = 'primary', subtitle, badge }: {
   );
 }
 
-function AlertBanner({ alerts }: { alerts: DashboardAlert[] }) {
+function AlertBanner({ alerts }: { alerts: AlertData[] }) {
   if (!alerts.length) return null;
   return (
     <div className="space-y-2">
@@ -30,8 +58,8 @@ function AlertBanner({ alerts }: { alerts: DashboardAlert[] }) {
         <div
           key={i}
           className={`p-3 rounded-xl text-sm ${
-            a.severity === 'critical' ? 'bg-red-100 text-red-700' :
-            a.severity === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+            a.severity === 'critical' || a.severity === 'CRITICAL' ? 'bg-red-100 text-red-700' :
+            a.severity === 'warning' || a.severity === 'WARNING' ? 'bg-yellow-100 text-yellow-700' :
             'bg-blue-100 text-blue-700'
           }`}
         >
@@ -45,17 +73,27 @@ function AlertBanner({ alerts }: { alerts: DashboardAlert[] }) {
 
 export default function DashboardPage() {
   const today = new Date().toISOString().split('T')[0];
-  const { data: summary, loading, lastUpdated, refresh } = useAutoRefresh<DashboardSummary>(
-    () => dashboardApi.summary(today, 'HQ'), 300000
+  const { data: dashData, loading, lastUpdated, refresh } = useAutoRefresh<DashboardData>(
+    () => dashboardApi.summary(today), 300000
   );
-  const { data: alerts } = useAutoRefresh<DashboardAlert[]>(
+  const { data: alerts } = useAutoRefresh<AlertData[]>(
     () => dashboardApi.alerts(), 300000
   );
 
-  const fmt = (n: number) => 'Rp ' + n.toLocaleString('id-ID');
+  const fmt = (n: string | number | undefined) => {
+    if (n === undefined || n === null) return 'Rp 0';
+    const num = typeof n === 'string' ? parseFloat(n) : n;
+    if (isNaN(num)) return 'Rp 0';
+    return 'Rp ' + num.toLocaleString('id-ID');
+  };
 
-  if (loading && !summary) return <div className="p-4"><LoadingSkeleton rows={6} /></div>;
-  if (!summary) return <div className="p-4 text-center text-gray-500">Gagal memuat data</div>;
+  if (loading && !dashData) return <div className="p-4"><LoadingSkeleton rows={6} /></div>;
+  if (!dashData) return <div className="p-4 text-center text-gray-500">Gagal memuat data</div>;
+
+  const totalOps = parseFloat(dashData.total_operational_sales) || 0;
+  const totalPosted = parseFloat(dashData.total_posted_revenue) || 0;
+  const unposted = totalOps - totalPosted;
+  const hq = dashData.branches.find(b => b.branch_code === 'HQ');
 
   return (
     <div className="p-4 space-y-4">
@@ -72,53 +110,55 @@ export default function DashboardPage() {
       <AlertBanner alerts={alerts || []} />
 
       <div className="grid grid-cols-2 gap-3">
-        <MetricCard label="Operasional Sales" value={fmt(summary.operationalSales)} subtitle="Termasuk yang belum dibukukan" />
-        <MetricCard label="Pendapatan Tercatat" value={fmt(summary.postedRevenue)} type="primary" />
+        <MetricCard label="Operasional Sales" value={fmt(totalOps)} subtitle="Termasuk yang belum dibukukan" />
+        <MetricCard label="Pendapatan Tercatat" value={fmt(totalPosted)} type="primary" />
         <MetricCard
           label="Belum Tercatat"
-          value={fmt(summary.unpostedPaidSales)}
-          type={summary.unpostedPaidSales > 0 ? 'warning' : 'info'}
-          badge={summary.unpostedPaidSales > 0 ? 'Perlu perhatian' : undefined}
+          value={fmt(unposted)}
+          type={unposted > 0 ? 'warning' : 'info'}
+          badge={unposted > 0 ? 'Perlu perhatian' : undefined}
         />
         <MetricCard
-          label="Variance Belum Selesai"
-          value={String(summary.unreconciledVariance.count)}
-          type={summary.unreconciledVariance.count > 0 ? 'danger' : 'info'}
-          badge={summary.unreconciledVariance.count > 0 ? 'Action needed' : undefined}
+          label="Pending Sync"
+          value={String(dashData.total_pending_sync_count)}
+          type={dashData.total_pending_sync_count > 10 ? 'danger' : 'info'}
+          badge={dashData.total_pending_sync_count > 10 ? 'Perlu sync' : undefined}
         />
       </div>
 
-      {/* Transaction Counts */}
+      {/* Branch Details */}
       <div className="bg-white rounded-xl border border-gray-100 p-4">
-        <h3 className="text-sm font-semibold text-charcoal mb-3">Transaksi Hari Ini</h3>
-        <div className="grid grid-cols-4 gap-2 text-center">
-          <div><p className="text-lg font-bold">{summary.transactionCounts.total}</p><p className="text-xs text-gray-500">Total</p></div>
-          <div><p className="text-lg font-bold">{summary.transactionCounts.cash}</p><p className="text-xs text-gray-500">Tunai</p></div>
-          <div><p className="text-lg font-bold">{summary.transactionCounts.qris}</p><p className="text-xs text-gray-500">QRIS</p></div>
-          <div><p className="text-lg font-bold">{summary.transactionCounts.bankTransfer}</p><p className="text-xs text-gray-500">Transfer</p></div>
-        </div>
-      </div>
-
-      {/* Top Services */}
-      {summary.topServices.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-100 p-4">
-          <h3 className="text-sm font-semibold text-charcoal mb-3">Top Layanan</h3>
-          <div className="space-y-2">
-            {summary.topServices.map((s, i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+        <h3 className="text-sm font-semibold text-charcoal mb-3">Cabang</h3>
+        <div className="space-y-3">
+          {dashData.branches.map((b) => (
+            <div key={b.branch_code} className={`p-3 rounded-lg border ${b.is_stale ? 'border-yellow-300 bg-yellow-50' : 'border-gray-100'}`}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold text-charcoal">{b.branch_code}</span>
+                {b.is_stale && <span className="text-xs text-yellow-700 bg-yellow-200 px-2 py-0.5 rounded-full">Stale</span>}
+                {b.queue_alert && <span className="text-xs text-red-700 bg-red-200 px-2 py-0.5 rounded-full ml-1">Queue Alert</span>}
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-xs text-gray-400 mr-2">#{i + 1}</span>
-                  <span className="text-sm font-medium">{s.name}</span>
+                  <p className="text-gray-500">Sales</p>
+                  <p className="font-medium">{fmt(b.operational_sales)}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold">{fmt(s.revenue)}</p>
-                  <p className="text-xs text-gray-400">{s.count}x</p>
+                <div>
+                  <p className="text-gray-500">Posted</p>
+                  <p className="font-medium">{fmt(b.posted_revenue)}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Pending Sync</p>
+                  <p className="font-medium">{b.pending_sync_count}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Variance</p>
+                  <p className="font-medium">{fmt(b.unreconciled_variance)}</p>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

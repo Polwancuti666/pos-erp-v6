@@ -47,7 +47,7 @@ export const paymentApi = {
 export const exceptionApi = {
   list: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    return request<any[]>(`/exceptions${qs}`);
+    return request<any>(`/exceptions${qs}`);
   },
   get: (id: string) => request<any>(`/exceptions/${id}`),
   resolve: (id: string, data: any) => request<any>(`/exceptions/${id}/resolve`, { method: 'POST', body: JSON.stringify(data) }),

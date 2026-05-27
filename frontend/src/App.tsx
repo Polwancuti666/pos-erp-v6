@@ -8,7 +8,7 @@ import DailyClosingPage from './pages/DailyClosingPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/app">
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/checkout" replace />} />

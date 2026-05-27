@@ -1,13 +1,41 @@
 import { useState, useEffect } from 'react';
 import { exceptionApi } from '@/api/client';
-import { ExceptionItem, EXCEPTION_TYPE_LABELS } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge';
 import LoadingSkeleton from '@/components/common/LoadingSkeleton';
 
-const PRIORITY_COLORS = {
-  critical: 'bg-red-50 border-red-200',
-  high: 'bg-yellow-50 border-yellow-200',
-  medium: 'bg-white border-gray-200',
+interface ExceptionItem {
+  exception_id: string;
+  exception_type: string;
+  reference_id: string;
+  created_at: string;
+  owner_roles: string[];
+  sla_hours: number;
+  status: string;
+  resolved_by: string | null;
+  resolution: string | null;
+}
+
+interface ExceptionResponse {
+  total: number;
+  items: ExceptionItem[];
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  SYNC_FAILURE: 'Gagal Sinkronisasi',
+  UNMAPPED_COA: 'COA Belum Di-mapping',
+  PAYMENT_REVIEW_REQUIRED: 'Pembayaran Perlu Review',
+  RECONCILIATION_MISMATCH: 'Ketidakcocokan Rekonsiliasi',
+  DUPLICATE_EVENT: 'Duplikat Event',
+  PAYLOAD_VALIDATION: 'Validasi Payload Gagal',
+};
+
+const PRIORITY_MAP: Record<string, { color: string; label: string }> = {
+  PAYMENT_REVIEW_REQUIRED: { color: 'bg-red-50 border-red-200', label: 'Critical' },
+  RECONCILIATION_MISMATCH: { color: 'bg-red-50 border-red-200', label: 'Critical' },
+  SYNC_FAILURE: { color: 'bg-yellow-50 border-yellow-200', label: 'High' },
+  UNMAPPED_COA: { color: 'bg-yellow-50 border-yellow-200', label: 'High' },
+  PAYLOAD_VALIDATION: { color: 'bg-yellow-50 border-yellow-200', label: 'High' },
+  DUPLICATE_EVENT: { color: 'bg-white border-gray-200', label: 'Medium' },
 };
 
 export default function ExceptionPage() {
@@ -15,19 +43,23 @@ export default function ExceptionPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
 
-  useEffect(() => {
-    loadExceptions();
-  }, [filter]);
+  useEffect(() => { loadExceptions(); }, [filter]);
 
   const loadExceptions = async () => {
     setLoading(true);
     try {
       const params: Record<string, string> = {};
       if (filter !== 'all') params.status = filter;
-      const data = await exceptionApi.list(params);
-      setExceptions(data);
+      const data: ExceptionResponse = await exceptionApi.list(params);
+      setExceptions(data.items || []);
     } catch { /* empty */ }
     setLoading(false);
+  };
+
+  const isOverdue = (exc: ExceptionItem) => {
+    const created = new Date(exc.created_at).getTime();
+    const deadline = created + exc.sla_hours * 3600000;
+    return Date.now() > deadline && exc.status === 'OPEN';
   };
 
   return (
@@ -57,34 +89,38 @@ export default function ExceptionPage() {
               <p>Tidak ada exception</p>
             </div>
           )}
-          {exceptions.map(exc => (
-            <div
-              key={exc.exceptionId}
-              className={`rounded-xl border p-4 ${PRIORITY_COLORS[exc.priority]} ${exc.isOverdue ? 'ring-2 ring-red-400' : ''}`}
-            >
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <p className="text-sm font-mono text-gray-500">{exc.exceptionId}</p>
-                  <p className="font-semibold text-charcoal">{EXCEPTION_TYPE_LABELS[exc.exceptionType]}</p>
+          {exceptions.map(exc => {
+            const prio = PRIORITY_MAP[exc.exception_type] || { color: 'bg-white border-gray-200', label: 'Medium' };
+            const overdue = isOverdue(exc);
+            return (
+              <div
+                key={exc.exception_id}
+                className={`rounded-xl border p-4 ${prio.color} ${overdue ? 'ring-2 ring-red-400' : ''}`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <p className="text-sm font-mono text-gray-500">{exc.exception_id}</p>
+                    <p className="font-semibold text-charcoal">{TYPE_LABELS[exc.exception_type] || exc.exception_type}</p>
+                  </div>
+                  <StatusBadge
+                    label={prio.label}
+                    variant={prio.label === 'Critical' ? 'danger' : prio.label === 'High' ? 'warning' : 'neutral'}
+                  />
                 </div>
-                <StatusBadge
-                  label={exc.priority.toUpperCase()}
-                  variant={exc.priority === 'critical' ? 'danger' : exc.priority === 'high' ? 'warning' : 'neutral'}
-                />
+                <p className="text-sm text-gray-600">Ref: {exc.reference_id}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs text-gray-500">
+                    {new Date(exc.created_at).toLocaleString('id-ID')}
+                    {overdue && <span className="ml-2 text-red-600 font-medium">⚠ Terlambat</span>}
+                  </span>
+                  <StatusBadge
+                    label={exc.status}
+                    variant={exc.status === 'RESOLVED' ? 'success' : exc.status === 'ESCALATED' ? 'danger' : 'info'}
+                  />
+                </div>
               </div>
-              {exc.posCode && <p className="text-sm text-gray-600">POS: {exc.posCode}</p>}
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-gray-500">
-                  {new Date(exc.createdAt).toLocaleString('id-ID')}
-                  {exc.isOverdue && <span className="ml-2 text-red-600 font-medium">⚠ Terlambat</span>}
-                </span>
-                <StatusBadge
-                  label={exc.status}
-                  variant={exc.status === 'RESOLVED' ? 'success' : exc.status === 'ESCALATED' ? 'danger' : 'info'}
-                />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
