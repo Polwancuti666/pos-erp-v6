@@ -1,6 +1,7 @@
 from __future__ import annotations
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pos_erp.beauty_ui import render_dashboard_html
 from pos_erp.auth import router as auth_router
 from pos_erp.pos_auth import router as pos_auth_router
@@ -16,6 +17,9 @@ from pathlib import Path
 _INDEX_HTML = (Path(__file__).parent / "index.html").read_text()
 _POS_HTML = (Path(__file__).parent / "pos_index.html").read_text()
 _LOGIN_HTML = (Path(__file__).parent / "login.html").read_text()
+
+# Frontend dist directory
+_FRONTEND_DIST = Path(__file__).parent.parent.parent / "frontend" / "dist"
 
 def create_app() -> FastAPI:
     app = FastAPI(title="POS-ERP Integration Engine V6", version="0.1.0")
@@ -60,5 +64,22 @@ def create_app() -> FastAPI:
     @app.get("/payments/providers")
     def providers() -> dict[str, list[str]]:
         return {"providers": ["BCA", "MIDTRANS"]}
+
+    # ── Serve React Frontend ────────────────────────────────────────
+    if _FRONTEND_DIST.exists():
+        app.mount("/assets", StaticFiles(directory=str(_FRONTEND_DIST / "assets")), name="static-assets")
+
+        @app.get("/app/{path:path}")
+        async def serve_spa(path: str):
+            """Serve React SPA — all /app/* routes return index.html for client-side routing."""
+            file_path = _FRONTEND_DIST / path
+            if file_path.exists() and file_path.is_file():
+                return FileResponse(str(file_path))
+            return FileResponse(str(_FRONTEND_DIST / "index.html"))
+
+        @app.get("/app")
+        async def serve_spa_root():
+            return FileResponse(str(_FRONTEND_DIST / "index.html"))
+
     return app
 app = create_app()

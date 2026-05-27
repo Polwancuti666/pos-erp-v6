@@ -3,6 +3,7 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 COPY pyproject.toml README.md ./
 COPY src ./src
+COPY frontend/dist ./frontend/dist
 RUN pip install --no-cache-dir fastapi uvicorn[standard] psycopg[binary]
 ENV PYTHONPATH=/app/src
 EXPOSE 8000
