@@ -1,0 +1,13 @@
+tunnel: ea8eabfe-2560-4040-84eb-a0eaa343dd0a
+credentials-file: /root/.cloudflared/ea8eabfe-2560-4040-84eb-a0eaa343dd0a.json
+
+ingress:
+  - hostname: dashboard.beautynshine.web.id
+    service: http://localhost:9119
+  - hostname: api.beautynshine.web.id
+    service: http://localhost:8642
+  - hostname: erp.beautynshine.web.id
+    service: http://localhost:8000
+  - hostname: pos.beautynshine.web.id
+    service: http://localhost:8000
+  - service: http_status:404

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Terminal — Beauty & Shine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ivory: #FDFBF7;
+            --ivory-warm: #F8F4ED;
+            --gold: #C9A96E;
+            --gold-light: #E8D5A8;
+            --gold-shimmer: #D4AF37;
+            --charcoal: #2C2C2E;
+            --charcoal-deep: #1C1C1E;
+            --charcoal-soft: #3A3A3C;
+            --plum: #4A2040;
+            --plum-light: #6B3A5E;
+            --rose: #C08081;
+            --rose-light: #E8B4B8;
+            --text-primary: #2C2C2E;
+            --text-secondary: #6E6E73;
+            --text-light: #AEAEB2;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--ivory);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Playfair Display', Georgia, serif; }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 25%, var(--gold-shimmer) 50%, var(--gold-light) 75%, var(--gold) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(201,169,110,0.1); }
+            50% { box-shadow: 0 0 40px rgba(201,169,110,0.2); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        /* ── Login Screen ───────────────────────── */
+        #login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(160deg, var(--ivory) 0%, var(--ivory-warm) 40%, #F0E8D8 100%);
+            position: relative;
+        }
+        #login-screen::before {
+            content: '';
+            position: absolute;
+            top: -20%; right: -10%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(201,169,110,0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            width: 420px;
+            max-width: 95vw;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.04);
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 0.8s ease;
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-logo .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+        .login-logo h1 {
+            font-size: 1.8rem;
+            color: var(--charcoal);
+            letter-spacing: -0.02em;
+        }
+        .login-logo .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.03em;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.85rem 1.1rem;
+            border: 1.5px solid rgba(0,0,0,0.08);
+            border-radius: 12px;
+            background: var(--ivory);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,169,110,0.1);
+            background: white;
+        }
+        .form-group input::placeholder { color: var(--text-light); }
+
+        .btn {
+            width: 100%;
+            padding: 0.95rem;
+            background: var(--charcoal);
+            color: var(--ivory);
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.02em;
+            margin-top: 0.3rem;
+        }
+        .btn:hover {
+            background: var(--gold);
+            color: var(--charcoal);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(201,169,110,0.25);
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .error-msg {
+            background: rgba(192,128,129,0.1);
+            border: 1px solid rgba(192,128,129,0.2);
+            color: var(--rose);
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+            animation: shake 0.4s ease;
+        }
+
+        .staff-hint {
+            margin-top: 1.8rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0,0,0,0.04);
+        }
+        .staff-hint p {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 0.6rem;
+            text-align: center;
+        }
+        .staff-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .staff-chip {
+            background: var(--ivory);
+            padding: 0.5rem 0.8rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .staff-chip:hover {
+            border-color: var(--gold-light);
+            background: rgba(201,169,110,0.06);
+        }
+        .staff-chip strong { color: var(--text-primary); }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--gold); }
+
+        /* ── POS Screen ─────────────────────────── */
+        #pos-screen {
+            display: none;
+            min-height: 100vh;
+            animation: fadeIn 0.5s ease;
+        }
+        .pos-nav {
+            background: white;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+        }
+        .pos-nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            color: var(--charcoal);
+            font-weight: 700;
+        }
+        .pos-nav-brand span { color: var(--gold); }
+        .pos-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .staff-badge {
+            background: var(--ivory-warm);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .staff-badge .name { color: var(--charcoal); font-weight: 600; }
+        .btn-end-shift {
+            padding: 0.5rem 1.2rem;
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: white;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-end-shift:hover {
+            background: rgba(192,128,129,0.08);
+            color: var(--rose);
+            border-color: rgba(192,128,129,0.2);
+        }
+
+        .pos-body {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            height: calc(100vh - 64px);
+        }
+
+        /* Products Panel */
+        .products-panel {
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--ivory);
+        }
+        .products-header {
+            margin-bottom: 1.5rem;
+        }
+        .products-header h3 {
+            font-size: 1.3rem;
+            color: var(--charcoal);
+            margin-bottom: 0.3rem;
+        }
+        .products-header p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 1rem;
+        }
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1.5px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg, var(--gold-light), var(--gold), var(--gold-light));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .product-card:hover {
+            border-color: var(--gold-light);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+        }
+        .product-card:hover::before { opacity: 1; }
+        .product-card .emoji { font-size: 2.2rem; margin-bottom: 0.8rem; }
+        .product-card .name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+        .product-card .price {
+            font-size: 0.9rem;
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        /* Cart Panel */
+        .cart-panel {
+            background: white;
+            border-left: 1px solid rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .cart-header h3 {
+            font-size: 1.1rem;
+            color: var(--charcoal);
+        }
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 2rem;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+        }
+        .cart-item .item-info { flex: 1; }
+        .cart-item .item-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .cart-item .item-price {
+            font-size: 0.8rem;
+            color: var(--gold);
+            font-weight: 600;
+            margin-top: 0.1rem;
+        }
+        .cart-item .item-qty {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .qty-btn {
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: var(--ivory);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .qty-btn:hover {
+            border-color: var(--gold-light);
+            background: rgba(201,169,110,0.06);
+            color: var(--gold);
+        }
+        .cart-empty {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        .cart-empty .icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+
+        .cart-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0,0,0,0.04);
+            background: var(--ivory);
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .total-row.grand {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 0.6rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+        .btn-checkout {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            background: var(--charcoal);
+            color: var(--ivory);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            margin-top: 1rem;
+            letter-spacing: 0.02em;
+        }
+        .btn-checkout:hover {
+            background: var(--gold);
+            color: var(--charcoal);
+            box-shadow: 0 8px 24px rgba(201,169,110,0.25);
+        }
+        .btn-checkout:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* ── Success Modal ──────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 380px;
+            width: 90vw;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.1);
+        }
+        .modal-box .success-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+        .modal-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+        .modal-box p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .modal-box .btn { width: auto; padding: 0.8rem 2.5rem; }
+
+        @media (max-width: 900px) {
+            .pos-body { grid-template-columns: 1fr; }
+            .cart-panel { border-left: none; border-top: 1px solid rgba(0,0,0,0.04); }
+            .product-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ LOGIN SCREEN ════ -->
+<div id="login-screen">
+    <div class="login-card">
+        <div class="login-logo">
+            <div class="icon">🛍️</div>
+            <h1>POS Terminal</h1>
+            <div class="subtitle">Beauty & Shine</div>
+        </div>
+
+        <div class="form-group">
+            <label>Staff ID</label>
+            <input type="text" id="staff-id" placeholder="Enter your Staff ID" autofocus autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label>PIN</label>
+            <input type="password" id="staff-pin" placeholder="Enter your PIN" maxlength="6" autocomplete="off">
+        </div>
+
+        <button class="btn" id="btn-login" onclick="doLogin()">Begin Shift</button>
+        <div class="error-msg" id="error-msg"></div>
+
+        <div class="staff-hint">
+            <p>Demo — click to auto-fill</p>
+            <div class="staff-grid">
+                <div class="staff-chip" onclick="fillStaff('KSR001','1234')"><strong>KSR001</strong> · Siti</div>
+                <div class="staff-chip" onclick="fillStaff('KSR002','5678')"><strong>KSR002</strong> · Dewi</div>
+                <div class="staff-chip" onclick="fillStaff('ADM001','0000')"><strong>ADM001</strong> · Admin</div>
+                <div class="staff-chip" onclick="fillStaff('MGR001','9999')"><strong>MGR001</strong> · Manager</div>
+            </div>
+        </div>
+
+        <a href="https://erp.beautynshine.web.id/" class="back-link">← Back to Home</a>
+    </div>
+</div>
+
+<!-- ════ POS SCREEN ════ -->
+<div id="pos-screen">
+    <nav class="pos-nav">
+        <div class="pos-nav-brand">Beauty <span>&</span> Shine · POS</div>
+        <div class="pos-nav-right">
+            <span class="staff-badge" id="staff-badge">Kasir</span>
+            <button class="btn-end-shift" onclick="doLogout()">End Shift</button>
+        </div>
+    </nav>
+
+    <div class="pos-body">
+        <div class="products-panel">
+            <div class="products-header">
+                <h3>Services & Products</h3>
+                <p>Select items to add to cart</p>
+            </div>
+            <div class="product-grid" id="product-grid"></div>
+        </div>
+
+        <div class="cart-panel">
+            <div class="cart-header">
+                <h3>Shopping Cart</h3>
+            </div>
+            <div class="cart-items" id="cart-items">
+                <div class="cart-empty">
+                    <div class="icon">🛒</div>
+                    <p>Your cart is empty</p>
+                </div>
+            </div>
+            <div class="cart-footer">
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">Rp 0</span>
+                </div>
+                <div class="total-row">
+                    <span>Tax (11%)</span>
+                    <span id="tax">Rp 0</span>
+                </div>
+                <div class="total-row grand">
+                    <span>Total</span>
+                    <span id="grand-total">Rp 0</span>
+                </div>
+                <button class="btn-checkout" id="btn-checkout" onclick="doCheckout()" disabled>Complete Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════ SUCCESS MODAL ════ -->
+<div class="modal-overlay" id="success-modal">
+    <div class="modal-box">
+        <div class="success-icon">✨</div>
+        <h3>Payment Complete</h3>
+        <p id="modal-msg">Transaction processed successfully.</p>
+        <button class="btn" onclick="closeModal()">Done</button>
+    </div>
+</div>
+
+<script>
+    let currentShift = null;
+    let cart = [];
+
+    const PRODUCTS = [
+        { id: 'P001', name: 'Facial Treatment',   emoji: '🧖‍♀️', price: 150000 },
+        { id: 'P002', name: 'Creambath',          emoji: '💆‍♀️', price: 120000 },
+        { id: 'P003', name: 'Hair Spa',           emoji: '💇‍♀️', price: 130000 },
+        { id: 'P004', name: 'Manicure',           emoji: '💅',   price: 80000  },
+        { id: 'P005', name: 'Pedicure',           emoji: '🦶',   price: 90000  },
+        { id: 'P006', name: 'Body Massage',       emoji: '🫧',   price: 200000 },
+        { id: 'P007', name: 'Waxing',             emoji: '✨',   price: 100000 },
+        { id: 'P008', name: 'Lash Extension',     emoji: '👁️',  price: 250000 },
+        { id: 'P009', name: 'Eyebrow Threading',  emoji: '🎨',   price: 50000  },
+        { id: 'P010', name: 'Face Mask',          emoji: '🎭',   price: 75000  },
+        { id: 'P011', name: 'Body Scrub',         emoji: '🧴',   price: 160000 },
+        { id: 'P012', name: 'Aromatherapy',       emoji: '🕯️',  price: 180000 },
+    ];
+
+    function rupiah(n) { return 'Rp ' + n.toLocaleString('id-ID'); }
+
+    function fillStaff(id, pin) {
+        document.getElementById('staff-id').value = id;
+        document.getElementById('staff-pin').value = pin;
+    }
+
+    async function doLogin() {
+        const staffId = document.getElementById('staff-id').value.trim();
+        const pin = document.getElementById('staff-pin').value.trim();
+        const errEl = document.getElementById('error-msg');
+        const btn = document.getElementById('btn-login');
+
+        if (!staffId) { showError('Staff ID is required'); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+        errEl.style.display = 'none';
+
+        try {
+            const resp = await fetch('/pos/auth', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({staff_id: staffId, pin: pin}),
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                currentShift = data;
+                showPOS(data.staff);
+            } else {
+                showError(data.message || 'Login failed');
+            }
+        } catch (e) {
+            showError('Connection failed. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Begin Shift';
+        }
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('error-msg');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    document.getElementById('staff-pin').addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+    document.getElementById('staff-id').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('staff-pin').focus(); });
+
+    function showPOS(staff) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('pos-screen').style.display = 'block';
+        document.getElementById('staff-badge').innerHTML = `<span class="name">${staff.name}</span> · ${staff.role}`;
+
+        const grid = document.getElementById('product-grid');
+        grid.innerHTML = PRODUCTS.map(p => `
+            <div class="product-card" onclick="addToCart('${p.id}')">
+                <div class="emoji">${p.emoji}</div>
+                <div class="name">${p.name}</div>
+                <div class="price">${rupiah(p.price)}</div>
+            </div>
+        `).join('');
+    }
+
+    function addToCart(productId) {
+        const product = PRODUCTS.find(p => p.id === productId);
+        if (!product) return;
+        const existing = cart.find(c => c.id === productId);
+        if (existing) { existing.qty++; } else { cart.push({ ...product, qty: 1 }); }
+        renderCart();
+    }
+
+    function changeQty(productId, delta) {
+        const item = cart.find(c => c.id === productId);
+        if (!item) return;
+        item.qty += delta;
+        if (item.qty <= 0) cart = cart.filter(c => c.id !== productId);
+        renderCart();
+    }
+
+    function renderCart() {
+        const container = document.getElementById('cart-items');
+
+        if (cart.length === 0) {
+            container.innerHTML = '<div class="cart-empty"><div class="icon">🛒</div><p>Your cart is empty</p></div>';
+        } else {
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="item-info">
+                        <div class="item-name">${item.emoji} ${item.name}</div>
+                        <div class="item-price">${rupiah(item.price * item.qty)}</div>
+                    </div>
+                    <div class="item-qty">
+                        <button class="qty-btn" onclick="changeQty('${item.id}', -1)">−</button>
+                        <span>${item.qty}</span>
+                        <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+        const tax = Math.round(subtotal * 0.11);
+        const total = subtotal + tax;
+
+        document.getElementById('subtotal').textContent = rupiah(subtotal);
+        document.getElementById('tax').textContent = rupiah(tax);
+        document.getElementById('grand-total').textContent = rupiah(total);
+        document.getElementById('btn-checkout').disabled = cart.length === 0;
+    }
+
+    function doCheckout() {
+        if (cart.length === 0) return;
+        const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+        const tax = Math.round(total * 0.11);
+        const itemCount = cart.reduce((s, i) => s + i.qty, 0);
+
+        document.getElementById('modal-msg').textContent =
+            `${itemCount} item${itemCount > 1 ? 's' : ''} processed. Total: ${rupiah(total + tax)}`;
+        document.getElementById('success-modal').classList.add('show');
+        cart = [];
+        renderCart();
+    }
+
+    function closeModal() {
+        document.getElementById('success-modal').classList.remove('show');
+    }
+
+    async function doLogout() {
+        if (currentShift && currentShift.shift_id) {
+            try {
+                await fetch('/pos/end-shift', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({shift_id: currentShift.shift_id}),
+                });
+            } catch (e) {}
+        }
+        currentShift = null;
+        cart = [];
+        document.getElementById('pos-screen').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('staff-id').value = '';
+        document.getElementById('staff-pin').value = '';
+    }
+</script>
+</body>
+</html>

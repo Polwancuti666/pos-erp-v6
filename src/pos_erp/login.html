@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Beauty & Shine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ivory: #FDFBF7;
+            --ivory-warm: #F8F4ED;
+            --gold: #C9A96E;
+            --gold-light: #E8D5A8;
+            --gold-shimmer: #D4AF37;
+            --charcoal: #2C2C2E;
+            --charcoal-deep: #1C1C1E;
+            --charcoal-soft: #3A3A3C;
+            --plum: #4A2040;
+            --rose: #C08081;
+            --text-primary: #2C2C2E;
+            --text-secondary: #6E6E73;
+            --text-light: #AEAEB2;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Left Panel ─────────────────────────── */
+        .panel-left {
+            flex: 1;
+            background: var(--charcoal-deep);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .panel-left::before {
+            content: '';
+            position: absolute;
+            top: -20%; right: -20%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(201,169,110,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .panel-left::after {
+            content: '';
+            position: absolute;
+            bottom: -10%; left: -10%;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(192,128,129,0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .panel-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 400px;
+        }
+        .panel-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+        }
+        .panel-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--ivory);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        .panel-content h1 span { color: var(--gold); }
+        .panel-content p {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.4);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+        .panel-divider {
+            width: 40px;
+            height: 1px;
+            background: var(--gold);
+            margin: 1.5rem auto;
+            opacity: 0.4;
+        }
+        .panel-quote {
+            font-style: italic;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.25);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* ── Right Panel ────────────────────────── */
+        .panel-right {
+            flex: 1;
+            background: var(--ivory);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 380px;
+        }
+        .login-header {
+            margin-bottom: 2.5rem;
+        }
+        .login-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+        .login-header p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.6rem;
+            letter-spacing: 0.03em;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            border: 1.5px solid rgba(0,0,0,0.08);
+            border-radius: 12px;
+            background: white;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,169,110,0.1);
+        }
+        .form-group input::placeholder {
+            color: var(--text-light);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: var(--charcoal);
+            color: var(--ivory);
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.02em;
+            margin-top: 0.5rem;
+        }
+        .btn-login:hover {
+            background: var(--gold);
+            color: var(--charcoal);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(201,169,110,0.25);
+        }
+        .btn-login:active { transform: translateY(0); }
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-msg {
+            background: rgba(192,128,129,0.1);
+            border: 1px solid rgba(192,128,129,0.2);
+            color: var(--rose);
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .login-footer {
+            margin-top: 2.5rem;
+            text-align: center;
+        }
+        .login-footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .login-footer a:hover { color: var(--gold); }
+
+        /* ── Responsive ─────────────────────────── */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .panel-left {
+                padding: 3rem 2rem;
+                min-height: 35vh;
+            }
+            .panel-right { padding: 3rem 2rem; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-box { animation: fadeInUp 0.8s ease; }
+    </style>
+</head>
+<body>
+
+<!-- ════ Left Panel ════ -->
+<div class="panel-left">
+    <div class="panel-content">
+        <div class="panel-icon">✦</div>
+        <h1>Beauty <span>&</span> Shine</h1>
+        <p>Radiance & Refinement</p>
+        <div class="panel-divider"></div>
+        <p class="panel-quote">"Where every touchpoint is designed to deliver an experience as radiant as you are."</p>
+    </div>
+</div>
+
+<!-- ════ Right Panel ════ -->
+<div class="panel-right">
+    <div class="login-box">
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to your account to continue.</p>
+        </div>
+
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter your username" autofocus autocomplete="username">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+        </div>
+
+        <button class="btn-login" id="btn-login" onclick="doLogin()">Sign In</button>
+        <div class="error-msg" id="error-msg"></div>
+
+        <div class="login-footer">
+            <a href="/">← Back to Home</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function doLogin() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const errEl = document.getElementById('error-msg');
+        const btn = document.getElementById('btn-login');
+
+        if (!username || !password) {
+            errEl.textContent = 'Please fill in all fields.';
+            errEl.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Signing in...';
+        errEl.style.display = 'none';
+
+        try {
+            const resp = await fetch('/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password}),
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                errEl.textContent = data.message || 'Invalid credentials.';
+                errEl.style.display = 'block';
+            }
+        } catch (e) {
+            errEl.textContent = 'Connection failed. Please try again.';
+            errEl.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        }
+    }
+
+    // Enter key support
+    document.getElementById('password').addEventListener('keypress', e => {
+        if (e.key === 'Enter') doLogin();
+    });
+    document.getElementById('username').addEventListener('keypress', e => {
+        if (e.key === 'Enter') document.getElementById('password').focus();
+    });
+</script>
+</body>
+</html>

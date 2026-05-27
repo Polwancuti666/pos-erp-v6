@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERD — Beauty & Shine POS-ERP V6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1C1C1E;
+            color: #FDFBF7;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #C9A96E;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #6E6E73;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #AEAEB2;
+        }
+        .legend-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Entity Grid */
+        .erd-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .entity {
+            background: #2C2C2E;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .entity-header {
+            padding: 0.8rem 1.2rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            letter-spacing: 0.05em;
+        }
+        .entity-header .icon { font-size: 1.1rem; }
+        .entity-body {
+            padding: 0.4rem 0;
+        }
+        .field {
+            display: flex;
+            align-items: center;
+            padding: 0.35rem 1.2rem;
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            gap: 0.5rem;
+        }
+        .field:hover { background: rgba(255,255,255,0.03); }
+        .field .key-icon {
+            width: 18px;
+            text-align: center;
+            font-size: 0.7rem;
+        }
+        .field .name {
+            flex: 1;
+            color: #FDFBF7;
+        }
+        .field .type {
+            color: #6E6E73;
+            font-size: 0.7rem;
+        }
+        .pk { color: #D4AF37; }
+        .fk { color: #C08081; }
+        .required { color: #34C759; }
+        .nullable { color: #6E6E73; }
+
+        /* Category Colors */
+        .cat-core .entity-header { background: linear-gradient(135deg, #C9A96E20, #C9A96E05); color: #C9A96E; border-bottom: 1px solid #C9A96E20; }
+        .cat-transaction .entity-header { background: linear-gradient(135deg, #34C75920, #34C75905); color: #34C759; border-bottom: 1px solid #34C75920; }
+        .cat-finance .entity-header { background: linear-gradient(135deg, #5AC8FA20, #5AC8FA05); color: #5AC8FA; border-bottom: 1px solid #5AC8FA20; }
+        .cat-inventory .entity-header { background: linear-gradient(135deg, #FF9F0A20, #FF9F0A05); color: #FF9F0A; border-bottom: 1px solid #FF9F0A20; }
+        .cat-loyalty .entity-header { background: linear-gradient(135deg, #BF5AF220, #BF5AF205); color: #BF5AF2; border-bottom: 1px solid #BF5AF220; }
+        .cat-system .entity-header { background: linear-gradient(135deg, #FF453A20, #FF453A05); color: #FF453A; border-bottom: 1px solid #FF453A20; }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #C9A96E;
+            margin: 2.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(201,169,110,0.2);
+        }
+
+        /* Relationships */
+        .relationships {
+            margin-top: 2.5rem;
+            background: #2C2C2E;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .rel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        .rel-table th {
+            text-align: left;
+            padding: 0.6rem;
+            color: #C9A96E;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .rel-table td {
+            padding: 0.5rem 0.6rem;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            color: #AEAEB2;
+        }
+        .rel-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .rel-table .entity-name {
+            color: #FDFBF7;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🗄️ Entity Relationship Diagram</h1>
+<p class="subtitle">Beauty & Shine — POS-ERP Integration Engine V6 · PostgreSQL 16</p>
+
+<!-- Legend -->
+<div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#C9A96E"></div> Core Entities</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#34C759"></div> Transaction</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#5AC8FA"></div> Finance</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FF9F0A"></div> Inventory</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#BF5AF2"></div> Loyalty</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FF453A"></div> System</div>
+    <div class="legend-item"><span class="pk">🔑</span> Primary Key</div>
+    <div class="legend-item"><span class="fk">🔗</span> Foreign Key</div>
+</div>
+
+<!-- ═══ CORE ENTITIES ═══ -->
+<div class="section-title">Core Entities</div>
+<div class="erd-container">
+
+    <!-- BRANCH -->
+    <div class="entity cat-core">
+        <div class="entity-header"><span class="icon">🏢</span> BRANCH</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">code</span><span class="type">VARCHAR(20) UK</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">name</span><span class="type">VARCHAR(100)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">address</span><span class="type">TEXT</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">phone</span><span class="type">VARCHAR(20)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">email</span><span class="type">VARCHAR(100)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">timezone</span><span class="type">VARCHAR(50)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">is_active</span><span class="type">BOOLEAN</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">created_at</span><span class="type">TIMESTAMP</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">updated_at</span><span class="type">TIMESTAMP</span></div>
+        </div>
+    </div>
+
+    <!-- STAFF -->
+    <div class="entity cat-core">
+        <div class="entity-header"><span class="icon">👤</span> STAFF</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">branch_id</span><span class="type">UUID → BRANCH</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">staff_code</span><span class="type">VARCHAR(20) UK</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">name</span><span class="type">VARCHAR(100)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">pin_hash</span><span class="type">VARCHAR(255)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">role</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">phone</span><span class="type">VARCHAR(20)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">commission_rate</span><span class="type">DECIMAL(5,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">is_active</span><span class="type">BOOLEAN</span></div>
+        </div>
+    </div>
+
+    <!-- CUSTOMER -->
+    <div class="entity cat-core">
+        <div class="entity-header"><span class="icon">👥</span> CUSTOMER</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">customer_code</span><span class="type">VARCHAR(20) UK</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">name</span><span class="type">VARCHAR(100)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">phone</span><span class="type">VARCHAR(20) UK</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">email</span><span class="type">VARCHAR(100)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">birth_date</span><span class="type">DATE</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">loyalty_points</span><span class="type">INTEGER</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">tier</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">visit_count</span><span class="type">INTEGER</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">total_spent</span><span class="type">DECIMAL(15,2)</span></div>
+        </div>
+    </div>
+
+    <!-- SHIFT -->
+    <div class="entity cat-core">
+        <div class="entity-header"><span class="icon">⏰</span> SHIFT</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">staff_id</span><span class="type">UUID → STAFF</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">branch_id</span><span class="type">UUID → BRANCH</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">shift_number</span><span class="type">VARCHAR(30) UK</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">started_at</span><span class="type">TIMESTAMP</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">ended_at</span><span class="type">TIMESTAMP</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">opening_cash</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">closing_cash</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">total_sales</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">status</span><span class="type">ENUM</span></div>
+        </div>
+    </div>
+
+    <!-- SERVICE -->
+    <div class="entity cat-core">
+        <div class="entity-header"><span class="icon">💆</span> SERVICE</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">name</span><span class="type">VARCHAR(150)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">category</span><span class="type">VARCHAR(50)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">duration_minutes</span><span class="type">INTEGER</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">base_price</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">commission_rate</span><span class="type">DECIMAL(5,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">is_active</span><span class="type">BOOLEAN</span></div>
+        </div>
+    </div>
+
+    <!-- PRODUCT -->
+    <div class="entity cat-inventory">
+        <div class="entity-header"><span class="icon">📦</span> PRODUCT</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">branch_id</span><span class="type">UUID → BRANCH</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">sku</span><span class="type">VARCHAR(30) UK</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">name</span><span class="type">VARCHAR(150)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">cost_price</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">selling_price</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">stock_qty</span><span class="type">INTEGER</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">min_stock</span><span class="type">INTEGER</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">unit</span><span class="type">VARCHAR(20)</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ TRANSACTION ENTITIES ═══ -->
+<div class="section-title">Transaction Entities</div>
+<div class="erd-container">
+
+    <!-- BOOKING -->
+    <div class="entity cat-transaction">
+        <div class="entity-header"><span class="icon">📅</span> BOOKING</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">booking_number</span><span class="type">VARCHAR(30) UK</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">customer_id</span><span class="type">UUID → CUSTOMER</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">service_id</span><span class="type">UUID → SERVICE</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">staff_id</span><span class="type">UUID → STAFF</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">booking_date</span><span class="type">DATE</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">booking_time</span><span class="type">TIME</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">end_time</span><span class="type">TIME</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">status</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">notes</span><span class="type">TEXT</span></div>
+        </div>
+    </div>
+
+    <!-- TRANSACTION -->
+    <div class="entity cat-transaction">
+        <div class="entity-header"><span class="icon">🧾</span> TRANSACTION</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">invoice_number</span><span class="type">VARCHAR(30) UK</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">shift_id</span><span class="type">UUID → SHIFT</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">customer_id</span><span class="type">UUID → CUSTOMER</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">branch_id</span><span class="type">UUID → BRANCH</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">subtotal</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">discount_amount</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">tax_amount</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">total</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">payment_method</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">payment_status</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">payment_ref</span><span class="type">VARCHAR(100)</span></div>
+        </div>
+    </div>
+
+    <!-- TRANSACTION_ITEM -->
+    <div class="entity cat-transaction">
+        <div class="entity-header"><span class="icon">📋</span> TRANSACTION_ITEM</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">transaction_id</span><span class="type">UUID → TRANSACTION</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">item_type</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">product_id</span><span class="type">UUID → PRODUCT</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">service_id</span><span class="type">UUID → SERVICE</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">staff_id</span><span class="type">UUID → STAFF</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">item_name</span><span class="type">VARCHAR(150)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">quantity</span><span class="type">INTEGER</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">unit_price</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">subtotal</span><span class="type">DECIMAL(15,2)</span></div>
+        </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div class="entity cat-transaction">
+        <div class="entity-header"><span class="icon">💳</span> PAYMENT</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">transaction_id</span><span class="type">UUID → TRANSACTION</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">method</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">amount</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">status</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">gateway_ref</span><span class="type">VARCHAR(100)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">gateway_response</span><span class="type">JSONB</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">paid_at</span><span class="type">TIMESTAMP</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ FINANCE ENTITIES ═══ -->
+<div class="section-title">Finance & Accounting</div>
+<div class="erd-container">
+
+    <!-- COA -->
+    <div class="entity cat-finance">
+        <div class="entity-header"><span class="icon">📊</span> COA (Chart of Accounts)</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">code</span><span class="type">VARCHAR(20) UK</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">name</span><span class="type">VARCHAR(100)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">type</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">parent_id</span><span class="type">UUID → COA</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">is_active</span><span class="type">BOOLEAN</span></div>
+        </div>
+    </div>
+
+    <!-- JOURNAL_ENTRY -->
+    <div class="entity cat-finance">
+        <div class="entity-header"><span class="icon">📖</span> JOURNAL_ENTRY</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">transaction_id</span><span class="type">UUID → TRANSACTION</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">entry_number</span><span class="type">VARCHAR(30) UK</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">entry_date</span><span class="type">DATE</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">description</span><span class="type">TEXT</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">total_debit</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">total_credit</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">is_locked</span><span class="type">BOOLEAN</span></div>
+        </div>
+    </div>
+
+    <!-- JOURNAL_LINE -->
+    <div class="entity cat-finance">
+        <div class="entity-header"><span class="icon">📝</span> JOURNAL_LINE</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">journal_entry_id</span><span class="type">UUID → JOURNAL_ENTRY</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">coa_id</span><span class="type">UUID → COA</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">debit</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">credit</span><span class="type">DECIMAL(15,2)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">description</span><span class="type">TEXT</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ INVENTORY & LOYALTY ═══ -->
+<div class="section-title">Inventory & Loyalty</div>
+<div class="erd-container">
+
+    <!-- INVENTORY_MOVEMENT -->
+    <div class="entity cat-inventory">
+        <div class="entity-header"><span class="icon">🔄</span> INVENTORY_MOVEMENT</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">product_id</span><span class="type">UUID → PRODUCT</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">branch_id</span><span class="type">UUID → BRANCH</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">type</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">quantity</span><span class="type">INTEGER</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">reference_type</span><span class="type">VARCHAR(50)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">reference_id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">created_by</span><span class="type">UUID → STAFF</span></div>
+        </div>
+    </div>
+
+    <!-- LOYALTY_TRANSACTION -->
+    <div class="entity cat-loyalty">
+        <div class="entity-header"><span class="icon">⭐</span> LOYALTY_TRANSACTION</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">customer_id</span><span class="type">UUID → CUSTOMER</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">transaction_id</span><span class="type">UUID → TRANSACTION</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">type</span><span class="type">ENUM</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">points</span><span class="type">INTEGER</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">balance_after</span><span class="type">INTEGER</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">description</span><span class="type">TEXT</span></div>
+        </div>
+    </div>
+
+    <!-- AUDIT_LOG -->
+    <div class="entity cat-system">
+        <div class="entity-header"><span class="icon">🔍</span> AUDIT_LOG</div>
+        <div class="entity-body">
+            <div class="field"><span class="key-icon pk">🔑</span><span class="name">id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon fk">🔗</span><span class="name">staff_id</span><span class="type">UUID → STAFF</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">action</span><span class="type">VARCHAR(50)</span></div>
+            <div class="field"><span class="key-icon required">●</span><span class="name">entity_type</span><span class="type">VARCHAR(50)</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">entity_id</span><span class="type">UUID</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">old_values</span><span class="type">JSONB</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">new_values</span><span class="type">JSONB</span></div>
+            <div class="field"><span class="key-icon nullable">○</span><span class="name">ip_address</span><span class="type">VARCHAR(45)</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ RELATIONSHIPS ═══ -->
+<div class="section-title">Relationships</div>
+<div class="relationships">
+    <table class="rel-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Parent</th>
+                <th>Child</th>
+                <th>Type</th>
+                <th>FK Column</th>
+                <th>On Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td class="entity-name">BRANCH</td><td class="entity-name">STAFF</td><td>1:N</td><td>staff.branch_id</td><td>RESTRICT</td></tr>
+            <tr><td>2</td><td class="entity-name">BRANCH</td><td class="entity-name">PRODUCT</td><td>1:N</td><td>product.branch_id</td><td>RESTRICT</td></tr>
+            <tr><td>3</td><td class="entity-name">BRANCH</td><td class="entity-name">BOOKING</td><td>1:N</td><td>booking.branch_id</td><td>RESTRICT</td></tr>
+            <tr><td>4</td><td class="entity-name">BRANCH</td><td class="entity-name">TRANSACTION</td><td>1:N</td><td>transaction.branch_id</td><td>RESTRICT</td></tr>
+            <tr><td>5</td><td class="entity-name">STAFF</td><td class="entity-name">SHIFT</td><td>1:N</td><td>shift.staff_id</td><td>RESTRICT</td></tr>
+            <tr><td>6</td><td class="entity-name">SHIFT</td><td class="entity-name">TRANSACTION</td><td>1:N</td><td>transaction.shift_id</td><td>RESTRICT</td></tr>
+            <tr><td>7</td><td class="entity-name">CUSTOMER</td><td class="entity-name">BOOKING</td><td>1:N</td><td>booking.customer_id</td><td>SET NULL</td></tr>
+            <tr><td>8</td><td class="entity-name">CUSTOMER</td><td class="entity-name">TRANSACTION</td><td>1:N</td><td>transaction.customer_id</td><td>SET NULL</td></tr>
+            <tr><td>9</td><td class="entity-name">SERVICE</td><td class="entity-name">BOOKING</td><td>1:N</td><td>booking.service_id</td><td>RESTRICT</td></tr>
+            <tr><td>10</td><td class="entity-name">TRANSACTION</td><td class="entity-name">TRANSACTION_ITEM</td><td>1:N</td><td>txn_item.transaction_id</td><td>CASCADE</td></tr>
+            <tr><td>11</td><td class="entity-name">TRANSACTION</td><td class="entity-name">PAYMENT</td><td>1:N</td><td>payment.transaction_id</td><td>CASCADE</td></tr>
+            <tr><td>12</td><td class="entity-name">TRANSACTION</td><td class="entity-name">JOURNAL_ENTRY</td><td>1:1</td><td>journal_entry.transaction_id</td><td>SET NULL</td></tr>
+            <tr><td>13</td><td class="entity-name">JOURNAL_ENTRY</td><td class="entity-name">JOURNAL_LINE</td><td>1:N</td><td>journal_line.journal_entry_id</td><td>CASCADE</td></tr>
+            <tr><td>14</td><td class="entity-name">COA</td><td class="entity-name">JOURNAL_LINE</td><td>1:N</td><td>journal_line.coa_id</td><td>RESTRICT</td></tr>
+            <tr><td>15</td><td class="entity-name">PRODUCT</td><td class="entity-name">INVENTORY_MOVEMENT</td><td>1:N</td><td>inv_movement.product_id</td><td>RESTRICT</td></tr>
+            <tr><td>16</td><td class="entity-name">CUSTOMER</td><td class="entity-name">LOYALTY_TRANSACTION</td><td>1:N</td><td>loyalty_txn.customer_id</td><td>CASCADE</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div style="text-align:center; margin-top:3rem; padding:1.5rem; color:#6E6E73; font-size:0.8rem;">
+    Beauty & Shine · POS-ERP Integration Engine V6 · ERD v1.0 · DRAFT
+</div>
+
+</body>
+</html>

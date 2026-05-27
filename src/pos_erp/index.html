@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty & Shine — Radiance & Refinement</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ivory: #FDFBF7;
+            --ivory-warm: #F8F4ED;
+            --gold: #C9A96E;
+            --gold-light: #E8D5A8;
+            --gold-shimmer: #D4AF37;
+            --charcoal: #2C2C2E;
+            --charcoal-deep: #1C1C1E;
+            --charcoal-soft: #3A3A3C;
+            --plum: #4A2040;
+            --plum-light: #6B3A5E;
+            --rose: #C08081;
+            --rose-light: #E8B4B8;
+            --text-primary: #2C2C2E;
+            --text-secondary: #6E6E73;
+            --text-light: #AEAEB2;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--text-primary);
+            background: var(--ivory);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Typography ─────────────────────────── */
+        h1, h2, h3, h4 { font-family: 'Playfair Display', Georgia, serif; }
+
+        /* ── Shimmer Effect ─────────────────────── */
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .shimmer-text {
+            background: linear-gradient(
+                90deg,
+                var(--gold) 0%,
+                var(--gold-light) 25%,
+                var(--gold-shimmer) 50%,
+                var(--gold-light) 75%,
+                var(--gold) 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(201,169,110,0.15); }
+            50% { box-shadow: 0 0 40px rgba(201,169,110,0.3); }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Navigation ─────────────────────────── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s ease;
+            background: transparent;
+        }
+        nav.scrolled {
+            background: rgba(253,251,247,0.92);
+            backdrop-filter: blur(20px);
+            padding: 1rem 3rem;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+        }
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+        .nav-brand span { color: var(--gold); }
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--gold); }
+        .nav-cta {
+            padding: 0.6rem 1.6rem;
+            background: var(--charcoal);
+            color: var(--ivory) !important;
+            border-radius: 100px;
+            font-size: 0.85rem !important;
+            transition: all 0.3s ease !important;
+        }
+        .nav-cta:hover {
+            background: var(--gold) !important;
+            color: var(--charcoal) !important;
+        }
+
+        /* ── Hero Section ───────────────────────── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(160deg, var(--ivory) 0%, var(--ivory-warm) 40%, #F0E8D8 100%);
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -20%;
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(201,169,110,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%; left: -10%;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(192,128,129,0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+        .hero-content {
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 1.2s ease;
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border: 1px solid var(--gold-light);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 2rem;
+            background: rgba(201,169,110,0.05);
+        }
+        .hero h1 {
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--charcoal-deep);
+            letter-spacing: -0.03em;
+        }
+        .hero h1 em {
+            font-style: italic;
+            font-weight: 400;
+        }
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 560px;
+            margin: 0 auto 2.5rem;
+            font-weight: 300;
+        }
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 2.5rem;
+            background: var(--charcoal);
+            color: var(--ivory);
+            text-decoration: none;
+            border-radius: 100px;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            transition: all 0.4s ease;
+            animation: glow 3s ease-in-out infinite;
+        }
+        .hero-cta:hover {
+            background: var(--gold);
+            color: var(--charcoal);
+            transform: translateY(-2px);
+        }
+        .hero-cta .arrow {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+        .hero-cta:hover .arrow { transform: translateX(4px); }
+        .hero-scroll {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            animation: float 3s ease-in-out infinite;
+        }
+        .hero-scroll .line {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(to bottom, var(--gold-light), transparent);
+        }
+
+        /* ── Services Section ───────────────────── */
+        .services {
+            padding: 8rem 3rem;
+            background: var(--ivory);
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            color: var(--charcoal-deep);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        .section-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .service-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--gold-light), var(--gold), var(--gold-light));
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+        }
+        .service-card:hover::before { opacity: 1; }
+        .service-icon {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+            background: var(--ivory-warm);
+        }
+        .service-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--charcoal);
+        }
+        .service-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* ── Testimonials ───────────────────────── */
+        .testimonials {
+            padding: 8rem 3rem;
+            background: var(--charcoal-deep);
+            color: var(--ivory);
+            position: relative;
+            overflow: hidden;
+        }
+        .testimonials::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 30% 50%, rgba(201,169,110,0.06) 0%, transparent 60%);
+        }
+        .testimonials .section-label { color: var(--gold-light); }
+        .testimonials .section-title { color: var(--ivory); }
+        .testimonials .section-subtitle { color: rgba(255,255,255,0.5); }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .testimonial-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        .testimonial-card:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(201,169,110,0.2);
+        }
+        .testimonial-stars {
+            color: var(--gold);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+        }
+        .testimonial-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            font-weight: 300;
+        }
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .testimonial-avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold), var(--rose));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+        }
+        .testimonial-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .testimonial-role {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        /* ── Portal Access ──────────────────────── */
+        .portal {
+            padding: 8rem 3rem;
+            background: linear-gradient(180deg, var(--ivory) 0%, var(--ivory-warm) 100%);
+        }
+        .portal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .portal-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: all 0.4s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+        .portal-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            border: 2px solid transparent;
+            transition: border-color 0.4s;
+        }
+        .portal-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.08);
+        }
+        .portal-card:hover::after { border-color: var(--gold-light); }
+        .portal-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+        .portal-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--charcoal);
+        }
+        .portal-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+        }
+        .portal-link {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* ── Footer ─────────────────────────────── */
+        footer {
+            padding: 4rem 3rem 2rem;
+            background: var(--charcoal-deep);
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+        }
+        .footer-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--ivory);
+            margin-bottom: 0.5rem;
+        }
+        .footer-brand span { color: var(--gold); }
+        .footer-tagline {
+            font-size: 0.85rem;
+            font-style: italic;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 2rem;
+        }
+        .footer-divider {
+            width: 60px;
+            height: 1px;
+            background: var(--gold);
+            margin: 2rem auto;
+            opacity: 0.3;
+        }
+        .footer-copy {
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Responsive ─────────────────────────── */
+        @media (max-width: 768px) {
+            nav { padding: 1rem 1.5rem; }
+            .nav-links { display: none; }
+            .hero { padding: 6rem 1.5rem 4rem; }
+            .services, .testimonials, .portal { padding: 5rem 1.5rem; }
+            .portal-grid { grid-template-columns: 1fr; }
+            .services-grid { grid-template-columns: 1fr; }
+            .testimonial-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ NAVIGATION ════ -->
+<nav id="navbar">
+    <a href="#" class="nav-brand">Beauty <span>&</span> Shine</a>
+    <ul class="nav-links">
+        <li><a href="#services">Services</a></li>
+        <li><a href="#testimonials">Stories</a></li>
+        <li><a href="#portal">Portal</a></li>
+        <li><a href="https://erp.beautynshine.web.id/login" class="nav-cta">Sign In</a></li>
+    </ul>
+</nav>
+
+<!-- ════ HERO ════ -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">✦ Premium Beauty & Wellness</div>
+        <h1>Where <em>Radiance</em><br>Meets <span class="shimmer-text">Refinement</span></h1>
+        <p>Experience the art of beauty, reimagined. A seamless journey from booking to bliss — powered by elegance at every touchpoint.</p>
+        <a href="#portal" class="hero-cta">
+            Begin Your Glow <span class="arrow">→</span>
+        </a>
+    </div>
+    <div class="hero-scroll">
+        <span>Scroll</span>
+        <div class="line"></div>
+    </div>
+</section>
+
+<!-- ════ SERVICES ════ -->
+<section class="services" id="services">
+    <div class="section-header animate-on-scroll">
+        <div class="section-label">Our Services</div>
+        <h2 class="section-title">Curated for Your <em>Glow</em></h2>
+        <p class="section-subtitle">Every touchpoint designed to deliver an experience as radiant as you are.</p>
+    </div>
+    <div class="services-grid">
+        <div class="service-card animate-on-scroll">
+            <div class="service-icon">🧖‍♀️</div>
+            <h3>Facial & Skincare</h3>
+            <p>Personalized treatments crafted by certified aestheticians. From hydrating facials to advanced skin renewal — your glow, your way.</p>
+        </div>
+        <div class="service-card animate-on-scroll">
+            <div class="service-icon">💆‍♀️</div>
+            <h3>Hair & Scalp Therapy</h3>
+            <p>Luxurious creambath, hair spa, and scalp treatments using premium botanicals. Because beautiful hair starts with a healthy foundation.</p>
+        </div>
+        <div class="service-card animate-on-scroll">
+            <div class="service-icon">💅</div>
+            <h3>Nail Art & Care</h3>
+            <p>From classic manicure to bespoke nail artistry. Meticulous attention to detail that turns fingertips into conversation starters.</p>
+        </div>
+        <div class="service-card animate-on-scroll">
+            <div class="service-icon">🫧</div>
+            <h3>Body Wellness</h3>
+            <p>Aromatherapy massage, body scrubs, and holistic rituals. A sanctuary where tension dissolves and radiance emerges.</p>
+        </div>
+        <div class="service-card animate-on-scroll">
+            <div class="service-icon">👁️</div>
+            <h3>Lash & Brow Studio</h3>
+            <p>Expert lash extensions, brow shaping, and threading. Frame your natural beauty with precision artistry.</p>
+        </div>
+        <div class="service-card animate-on-scroll">
+            <div class="service-icon">✨</div>
+            <h3>Beauty Packages</h3>
+            <p>Curated bundles for bridal, birthday, or self-care days. Multiple treatments, one unforgettable experience.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ════ TESTIMONIALS ════ -->
+<section class="testimonials" id="testimonials">
+    <div class="section-header animate-on-scroll">
+        <div class="section-label">Client Stories</div>
+        <h2 class="section-title">Words That <em>Glow</em></h2>
+        <p class="section-subtitle">Real experiences from our beloved clients.</p>
+    </div>
+    <div class="testimonial-grid">
+        <div class="testimonial-card animate-on-scroll">
+            <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+            <p class="testimonial-text">"The facial treatment was absolutely divine. My skin hasn't felt this radiant in years. The ambiance, the care — everything was perfect."</p>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">A</div>
+                <div>
+                    <div class="testimonial-name">Anisa Putri</div>
+                    <div class="testimonial-role">Loyal Member since 2023</div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial-card animate-on-scroll">
+            <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+            <p class="testimonial-text">"I've been to many salons, but Beauty & Shine is in a league of its own. The staff are true artists, and the booking system makes everything seamless."</p>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">R</div>
+                <div>
+                    <div class="testimonial-name">Ratna Dewi</div>
+                    <div class="testimonial-role">VIP Glow Member</div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial-card animate-on-scroll">
+            <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+            <p class="testimonial-text">"The body massage with aromatherapy was transformative. I walked in stressed and floated out feeling like a new person. Truly a sanctuary."</p>
+            <div class="testimonial-author">
+                <div class="testimonial-avatar">M</div>
+                <div>
+                    <div class="testimonial-name">Maya Sari</div>
+                    <div class="testimonial-role">First-time Visitor</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ════ PORTAL ACCESS ════ -->
+<section class="portal" id="portal">
+    <div class="section-header animate-on-scroll">
+        <div class="section-label">Access Portal</div>
+        <h2 class="section-title">Your <em>Journey</em> Awaits</h2>
+        <p class="section-subtitle">Choose your path to radiance.</p>
+    </div>
+    <div class="portal-grid">
+        <a href="https://erp.beautynshine.web.id/login" class="portal-card animate-on-scroll">
+            <span class="portal-icon">🏢</span>
+            <h3>ERP Dashboard</h3>
+            <p>Business management portal for owners and administrators. Analytics, inventory, finance — the full picture.</p>
+            <span class="portal-link">Access Dashboard →</span>
+        </a>
+        <a href="https://pos.beautynshine.web.id/" class="portal-card animate-on-scroll">
+            <span class="portal-icon">🛍️</span>
+            <h3>POS Terminal</h3>
+            <p>Point-of-sale interface for cashiers. Fast checkout, shift management, and real-time transaction processing.</p>
+            <span class="portal-link">Open POS →</span>
+        </a>
+    </div>
+</section>
+
+<!-- ════ FOOTER ════ -->
+<footer>
+    <div class="footer-brand">Beauty <span>&</span> Shine</div>
+    <div class="footer-tagline">Radiance & Refinement</div>
+    <div class="footer-divider"></div>
+    <div class="footer-copy">© 2026 Beauty & Shine. All rights reserved. Crafted with ✦</div>
+</footer>
+
+<script>
+    // ── Scroll Animations ─────────────────────
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => entry.target.classList.add('visible'), i * 100);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+    // ── Nav Scroll Effect ─────────────────────
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ── Smooth scroll for anchor links ────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            const target = document.querySelector(a.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
+</body>
+</html>
