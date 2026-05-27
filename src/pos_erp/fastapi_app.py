@@ -4,6 +4,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from pos_erp.beauty_ui import render_dashboard_html
 from pos_erp.auth import router as auth_router
 from pos_erp.pos_auth import router as pos_auth_router
+from pos_erp.routers import (
+    checkout_router,
+    exception_router,
+    dashboard_router,
+    coa_router,
+    closing_router,
+)
 from pathlib import Path
 
 _INDEX_HTML = (Path(__file__).parent / "index.html").read_text()
@@ -12,8 +19,17 @@ _LOGIN_HTML = (Path(__file__).parent / "login.html").read_text()
 
 def create_app() -> FastAPI:
     app = FastAPI(title="POS-ERP Integration Engine V6", version="0.1.0")
+
+    # ── Existing routers ─────────────────────────────────────────────
     app.include_router(auth_router)
     app.include_router(pos_auth_router)
+
+    # ── New module routers ───────────────────────────────────────────
+    app.include_router(checkout_router)
+    app.include_router(exception_router)
+    app.include_router(dashboard_router)
+    app.include_router(coa_router)
+    app.include_router(closing_router)
     
     @app.get("/")
     def root(request: Request) -> HTMLResponse:
