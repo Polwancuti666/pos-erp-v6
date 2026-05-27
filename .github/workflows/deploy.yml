@@ -1,0 +1,22 @@
+name: Deploy to VPS
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /root/pos-erp-v6
+            git pull origin main
+            npm run build 2>/dev/null || true
+            cd frontend && npm install && npm run build && cd ..
+            cp -r frontend/dist/* static/
+            sudo systemctl restart pos-erp
