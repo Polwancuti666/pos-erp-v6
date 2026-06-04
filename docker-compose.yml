@@ -3,14 +3,16 @@ services:
     image: postgres:16-alpine
     container_name: pos-erp-postgres
     restart: unless-stopped
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-erp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-pos_erp}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - pos_erp_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h localhost -p 5432"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-erp} -d ${POSTGRES_DB:-pos_erp}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -19,18 +21,21 @@ services:
     build: .
     container_name: pos-erp-api
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
     env_file:
       - .env
     ports:
-      - "127.0.0.1:8000:8000"
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POS_ERP_DATABASE_URL: "postgresql://${POSTGRES_USER:-erp}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-pos_erp}"
     healthcheck:
-      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/health\")'"]
-      interval: 15s
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 10s
 
 volumes:
   pos_erp_postgres_data:

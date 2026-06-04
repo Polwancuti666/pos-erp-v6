@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline — Beauty & Shine</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f3e8ff 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #831843;
+    }
+    .container {
+      text-align: center;
+      padding: 3rem 2rem;
+      max-width: 420px;
+    }
+    .logo {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 2rem;
+    }
+    .icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .message {
+      font-size: 1rem;
+      color: #9d174d;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .note {
+      font-size: 0.875rem;
+      color: #be185d;
+      background: rgba(255,255,255,0.6);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(236,72,153,0.2);
+    }
+    .retry-btn {
+      margin-top: 1.5rem;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, #ec4899, #a855f7);
+      color: white;
+      border: none;
+      border-radius: 9999px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(236,72,153,0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">💅</div>
+    <div class="brand">Beauty & Shine</div>
+    <div class="icon">📡</div>
+    <h1>Anda sedang offline</h1>
+    <p class="message">
+      Koneksi internet tidak tersedia saat ini. 
+      Beberapa fitur mungkin tidak dapat digunakan.
+    </p>
+    <div class="note">
+      ✨ Transaksi akan disync otomatis saat online
+    </div>
+    <button class="retry-btn" onclick="window.location.reload()">
+      Coba Lagi
+    </button>
+  </div>
+</body>
+</html>

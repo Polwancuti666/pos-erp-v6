@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,9 +12,11 @@ from pydantic import BaseModel, Field
 
 
 class CreateTransactionRequest(BaseModel):
-    branch_code: str = Field(..., description="Kode cabang")
+    branch_code: str = Field("", description="Kode cabang (e.g. BSD, HQ)")
+    branch_id: str = Field("", description="Branch UUID — alternative to branch_code")
     device_id: str = Field(..., description="ID perangkat POS")
     cashier_id: str = Field(..., description="ID kasir")
+    shift_id: Optional[str] = Field(None, description="ID shift cashier")
 
 
 class TransactionLineResponse(BaseModel):

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#C9A96E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" />
+  <title>Beauty &amp; Shine — Masuk</title>
+  <style>
+    :root {
+      --gold: #C9A96E;
+      --gold-light: #E8D5A8;
+      --ivory: #FDFBF7;
+      --ivory-warm: #F8F4ED;
+      --rose: #C08081;
+      --charcoal: #1C1C1E;
+      --charcoal-soft: #3A3A3C;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--ivory);
+      color: var(--charcoal);
+      min-height: 100vh;
+      display: flex;
+    }
+    /* ── Left Panel ── */
+    .panel-left {
+      flex: 1;
+      background: var(--charcoal);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel-left::before {
+      content: '';
+      position: absolute;
+      top: -20%; right: -20%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(201,169,110,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .panel-left::after {
+      content: '';
+      position: absolute;
+      bottom: -10%; left: -10%;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(192,128,129,0.06) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .panel-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 400px;
+    }
+    .panel-logo {
+      width: 80px; height: 80px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, var(--gold), var(--rose));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 36px;
+      box-shadow: 0 8px 32px rgba(201,169,110,.3);
+      margin-bottom: 1.5rem;
+    }
+    .panel-content h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      color: var(--ivory);
+      margin-bottom: .5rem;
+      letter-spacing: -0.02em;
+    }
+    .panel-content h1 span { color: var(--gold); }
+    .panel-content .tagline {
+      font-size: .95rem;
+      color: rgba(255,255,255,.4);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+    .panel-divider {
+      width: 40px; height: 1px;
+      background: var(--gold);
+      margin: 1.5rem auto;
+      opacity: .4;
+    }
+    .panel-quote {
+      font-style: italic;
+      font-size: .85rem;
+      color: rgba(255,255,255,.25);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+    /* ── Right Panel ── */
+    .panel-right {
+      flex: 1;
+      background: var(--ivory);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem;
+    }
+    .login-box {
+      width: 100%;
+      max-width: 380px;
+      animation: fadeInUp .6s ease;
+    }
+    .login-header {
+      margin-bottom: 2rem;
+    }
+    .login-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--charcoal);
+      margin-bottom: .4rem;
+    }
+    .login-header p {
+      font-size: .9rem;
+      color: #999;
+      font-weight: 300;
+    }
+    .form-group {
+      margin-bottom: 1.3rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: .5rem;
+      letter-spacing: .03em;
+    }
+    .form-group input {
+      width: 100%;
+      padding: .85rem 1rem;
+      border: 1.5px solid rgba(0,0,0,.08);
+      border-radius: 12px;
+      background: white;
+      font-size: .95rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--charcoal);
+      transition: all .2s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,.1);
+    }
+    .form-group input::placeholder { color: #bbb; }
+
+    .btn-login {
+      width: 100%;
+      padding: .9rem;
+      background: linear-gradient(135deg, var(--gold), var(--rose));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all .2s;
+      box-shadow: 0 4px 16px rgba(201,169,110,.25);
+      margin-top: .5rem;
+    }
+    .btn-login:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(201,169,110,.35);
+    }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-msg {
+      background: rgba(192,128,129,.1);
+      border: 1px solid rgba(192,128,129,.2);
+      color: var(--rose);
+      padding: .75rem 1rem;
+      border-radius: 10px;
+      font-size: .85rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* ── Quick Links ── */
+    .quick-links {
+      margin-top: 2rem;
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .quick-link {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid #eee;
+      border-radius: 14px;
+      text-decoration: none;
+      color: var(--charcoal);
+      font-size: .82rem;
+      font-weight: 500;
+      transition: all .2s;
+      background: white;
+    }
+    .quick-link:hover {
+      border-color: var(--gold-light);
+      box-shadow: 0 2px 12px rgba(201,169,110,.1);
+      transform: translateY(-1px);
+    }
+    .quick-link .icon { font-size: 18px; }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: .75rem;
+      color: #ccc;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .panel-left {
+        padding: 2.5rem 2rem;
+        min-height: 30vh;
+      }
+      .panel-right { padding: 2rem; }
+      .panel-content h1 { font-size: 1.8rem; }
+    }
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      .panel-right { padding-bottom: calc(3rem + env(safe-area-inset-bottom)); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════ Left Panel ════ -->
+<div class="panel-left">
+  <div class="panel-content">
+    <div class="panel-logo">B</div>
+    <h1>Beauty <span>&amp;</span> Shine</h1>
+    <p class="tagline">Sistem manajemen operasional untuk salon dan klinik kecantikan</p>
+    <div class="panel-divider"></div>
+    <p class="panel-quote">"Where every touchpoint is designed to deliver an experience as radiant as you are."</p>
+  </div>
+</div>
+
+<!-- ════ Right Panel ════ -->
+<div class="panel-right">
+  <div class="login-box">
+    <div class="login-header">
+      <h2>Welcome Back</h2>
+      <p>Masuk ke akun Anda untuk melanjutkan.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Masukkan username" autofocus autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Masukkan password" autocomplete="current-password">
+    </div>
+
+    <button class="btn-login" id="btn-login" onclick="doLogin()">Masuk</button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <div class="quick-links">
+    <a href="/pos" class="quick-link">
+      <span class="icon">🛒</span>
+      <span>Kasir POS</span>
+    </a>
+    <a href="/app/login" class="quick-link">
+      <span class="icon">📊</span>
+      <span>ERP Backoffice</span>
+    </a>
+  </div>
+
+  <div class="footer">&copy; 2026 Beauty &amp; Shine. All rights reserved.</div>
+</div>
+
+<script>
+  // If already logged in to portal, redirect to dashboard
+  (function() {
+    try {
+      var token = localStorage.getItem('portal_token');
+      if (token) window.location.href = '/dashboard';
+    } catch(e) {}
+  })();
+
+  async function doLogin() {
+    var username = document.getElementById('username').value.trim();
+    var password = document.getElementById('password').value;
+    var errEl = document.getElementById('error-msg');
+    var btn = document.getElementById('btn-login');
+
+    if (!username || !password) {
+      errEl.textContent = 'Isi username dan password.';
+      errEl.className = 'error-msg show';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Masuk...';
+    errEl.className = 'error-msg';
+
+    try {
+      var resp = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username: username, password: password}),
+      });
+      var data = await resp.json();
+
+      if (data.success && data.access_token) {
+        // Store as portal_token — NOT erp_token (ERP has its own login)
+        localStorage.setItem('portal_token', data.access_token);
+        localStorage.setItem('portal_role', data.role || '');
+        localStorage.setItem('portal_user', username);
+
+        if (data.role === 'kasir') {
+          window.location.href = '/pos';
+        } else {
+          // Admin goes to executive dashboard (not ERP directly)
+          window.location.href = '/dashboard';
+        }
+      } else {
+        errEl.textContent = data.message || 'Username atau password salah.';
+        errEl.className = 'error-msg show';
+      }
+    } catch (e) {
+      errEl.textContent = 'Koneksi gagal. Coba lagi.';
+      errEl.className = 'error-msg show';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Masuk';
+    }
+  }
+
+  // Enter key support
+  document.getElementById('password').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('username').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') document.getElementById('password').focus();
+  });
+</script>
+</body>
+</html>

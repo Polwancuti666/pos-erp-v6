@@ -48,8 +48,7 @@ export default function ExceptionPage() {
   const loadExceptions = async () => {
     setLoading(true);
     try {
-      const params: Record<string, string> = {};
-      if (filter !== 'all') params.status = filter;
+      const params = filter !== 'all' ? `status=${filter}` : '';
       const data: ExceptionResponse = await exceptionApi.list(params);
       setExceptions(data.items || []);
     } catch { /* empty */ }

@@ -1,163 +1,204 @@
-import { useAutoRefresh } from '@/hooks/useAutoRefresh';
-import { dashboardApi } from '@/api/client';
-import LoadingSkeleton from '@/components/common/LoadingSkeleton';
-
-// Map API response to display format
-interface BranchData {
-  branch_code: string;
-  operational_sales: string;
-  paid_pending_posting: string;
-  posted_revenue: string;
-  unreconciled_variance: string;
-  pending_sync_count: number;
-  failed_retry_count: number;
-  last_sync_at: string;
-  is_stale: boolean;
-  queue_alert: boolean;
-  sla_alert: boolean;
-}
+import { useState, useEffect } from 'react';
+import { api } from '../api/client';
+import {
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from 'recharts';
 
 interface DashboardData {
-  branches: BranchData[];
-  total_operational_sales: string;
-  total_posted_revenue: string;
-  total_pending_sync_count: number;
+  today: { sales_amount: number; transaction_count: number };
+  month: { sales_amount: number; transaction_count: number };
+  alerts: { pending_sync: number; open_exceptions: number; pending_approvals: number; low_stock: number };
+  top_treatments: { item_name: string; count: number; revenue: number }[];
+  recent_transactions: { doc_key: string; customer_name: string; total: number; status: string; created_at: string }[];
+  sales_trend: { date: string; transactions: number; revenue: number }[];
+  sales_by_payment: { method: string; count: number; amount: number }[];
+  low_stock_items: { name: string; sku: string; balance: number }[];
 }
 
-interface AlertData {
-  alert_type: string;
-  severity: string;
-  message: string;
-  count: number;
-}
-
-function MetricCard({ label, value, type = 'primary', subtitle, badge }: {
-  label: string; value: string; type?: 'primary' | 'warning' | 'danger' | 'info'; subtitle?: string; badge?: string;
-}) {
-  const COLORS = {
-    primary: 'bg-white border-gray-100',
-    warning: 'bg-yellow-50 border-yellow-200',
-    danger: 'bg-red-50 border-red-200',
-    info: 'bg-blue-50 border-blue-200',
-  };
-  return (
-    <div className={`rounded-xl border p-4 ${COLORS[type]}`}>
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className="text-xl font-bold text-charcoal">{value}</p>
-      {subtitle && <p className="text-xs text-gray-400 mt-1">{subtitle}</p>}
-      {badge && <span className="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-full">{badge}</span>}
-    </div>
-  );
-}
-
-function AlertBanner({ alerts }: { alerts: AlertData[] }) {
-  if (!alerts.length) return null;
-  return (
-    <div className="space-y-2">
-      {alerts.map((a, i) => (
-        <div
-          key={i}
-          className={`p-3 rounded-xl text-sm ${
-            a.severity === 'critical' || a.severity === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-            a.severity === 'warning' || a.severity === 'WARNING' ? 'bg-yellow-100 text-yellow-700' :
-            'bg-blue-100 text-blue-700'
-          }`}
-        >
-          {a.message}
-          {a.count > 0 && <span className="ml-2 font-bold">({a.count})</span>}
-        </div>
-      ))}
-    </div>
-  );
-}
+const COLORS = ['#C9A96E', '#8B6914', '#C08081', '#6B8E23', '#4682B4', '#DAA520'];
+const formatRp = (n: number) => 'Rp ' + (n || 0).toLocaleString('id-ID');
+const formatShort = (n: number) => {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'jt';
+  if (n >= 1_000) return (n / 1_000).toFixed(0) + 'rb';
+  return n.toString();
+};
 
 export default function DashboardPage() {
-  const today = new Date().toISOString().split('T')[0];
-  const { data: dashData, loading, lastUpdated, refresh } = useAutoRefresh<DashboardData>(
-    () => dashboardApi.summary(today), 300000
-  );
-  const { data: alerts } = useAutoRefresh<AlertData[]>(
-    () => dashboardApi.alerts(), 300000
-  );
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const fmt = (n: string | number | undefined) => {
-    if (n === undefined || n === null) return 'Rp 0';
-    const num = typeof n === 'string' ? parseFloat(n) : n;
-    if (isNaN(num)) return 'Rp 0';
-    return 'Rp ' + num.toLocaleString('id-ID');
-  };
+  useEffect(() => {
+    api.getDashboard()
+      .then((res) => setData(res))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
-  if (loading && !dashData) return <div className="p-4"><LoadingSkeleton rows={6} /></div>;
-  if (!dashData) return <div className="p-4 text-center text-gray-500">Gagal memuat data</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center py-16">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#C9A96E]"></div>
+      </div>
+    );
+  }
 
-  const totalOps = parseFloat(dashData.total_operational_sales) || 0;
-  const totalPosted = parseFloat(dashData.total_posted_revenue) || 0;
-  const unposted = totalOps - totalPosted;
-  const hq = dashData.branches.find(b => b.branch_code === 'HQ');
+  if (!data) {
+    return <div className="text-center py-16 text-gray-500">Gagal memuat dashboard</div>;
+  }
+
+  const trendData = (data.sales_trend || []).map((d) => ({
+    ...d,
+    revenue: Number(d.revenue),
+    date: new Date(d.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }),
+  }));
+
+  const paymentData = (data.sales_by_payment || []).map((d) => ({
+    ...d,
+    amount: Number(d.amount),
+    name: d.method || 'Unknown',
+  }));
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-charcoal">Dashboard Owner</h2>
-        <div className="text-right">
-          {lastUpdated && (
-            <p className="text-xs text-gray-400">Diperbarui: {lastUpdated.toLocaleTimeString('id-ID')}</p>
-          )}
-          <button onClick={refresh} className="text-xs text-gold font-medium">Refresh</button>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+
+      {/* ── KPI Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard label="Penjualan Hari Ini" value={formatRp(data.today.sales_amount)} icon="💰" sub={`${data.today.transaction_count} transaksi`} />
+        <KPICard label="Penjualan Bulan Ini" value={formatRp(data.month.sales_amount)} icon="📈" sub={`${data.month.transaction_count} transaksi`} />
+        <KPICard label="Pending Sync" value={String(data.alerts.pending_sync)} icon="🔄" alert={data.alerts.pending_sync > 0} />
+        <KPICard label="Stok Rendah" value={String(data.alerts.low_stock)} icon="⚠️" alert={data.alerts.low_stock > 0} />
+      </div>
+
+      {/* ── Sales Trend Chart (14 days) ── */}
+      {trendData.length > 0 && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">📊 Tren Penjualan (14 Hari)</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={trendData}>
+              <defs>
+                <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#C9A96E" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#C9A96E" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+              <YAxis tickFormatter={formatShort} tick={{ fontSize: 12 }} />
+              <Tooltip formatter={(v: any) => formatRp(Number(v))} />
+              <Area type="monotone" dataKey="revenue" stroke="#C9A96E" fill="url(#goldGradient)" strokeWidth={2} name="Revenue" />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
-      </div>
+      )}
 
-      <AlertBanner alerts={alerts || []} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ── Top Treatments ── */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">🏆 Top Treatments</h2>
+          {(data.top_treatments || []).length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={data.top_treatments} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis type="number" tickFormatter={formatShort} tick={{ fontSize: 11 }} />
+                <YAxis type="category" dataKey="item_name" width={120} tick={{ fontSize: 12 }} />
+                <Tooltip formatter={(v: any) => formatRp(Number(v))} />
+                <Bar dataKey="revenue" fill="#C9A96E" radius={[0, 4, 4, 0]} name="Revenue" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-gray-400 text-center py-8">Belum ada data</p>
+          )}
+        </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <MetricCard label="Operasional Sales" value={fmt(totalOps)} subtitle="Termasuk yang belum dibukukan" />
-        <MetricCard label="Pendapatan Tercatat" value={fmt(totalPosted)} type="primary" />
-        <MetricCard
-          label="Belum Tercatat"
-          value={fmt(unposted)}
-          type={unposted > 0 ? 'warning' : 'info'}
-          badge={unposted > 0 ? 'Perlu perhatian' : undefined}
-        />
-        <MetricCard
-          label="Pending Sync"
-          value={String(dashData.total_pending_sync_count)}
-          type={dashData.total_pending_sync_count > 10 ? 'danger' : 'info'}
-          badge={dashData.total_pending_sync_count > 10 ? 'Perlu sync' : undefined}
-        />
-      </div>
-
-      {/* Branch Details */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4">
-        <h3 className="text-sm font-semibold text-charcoal mb-3">Cabang</h3>
-        <div className="space-y-3">
-          {dashData.branches.map((b) => (
-            <div key={b.branch_code} className={`p-3 rounded-lg border ${b.is_stale ? 'border-yellow-300 bg-yellow-50' : 'border-gray-100'}`}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-charcoal">{b.branch_code}</span>
-                {b.is_stale && <span className="text-xs text-yellow-700 bg-yellow-200 px-2 py-0.5 rounded-full">Stale</span>}
-                {b.queue_alert && <span className="text-xs text-red-700 bg-red-200 px-2 py-0.5 rounded-full ml-1">Queue Alert</span>}
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p className="text-gray-500">Sales</p>
-                  <p className="font-medium">{fmt(b.operational_sales)}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Posted</p>
-                  <p className="font-medium">{fmt(b.posted_revenue)}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Pending Sync</p>
-                  <p className="font-medium">{b.pending_sync_count}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Variance</p>
-                  <p className="font-medium">{fmt(b.unreconciled_variance)}</p>
-                </div>
+        {/* ── Sales by Payment Method ── */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">💳 Metode Pembayaran</h2>
+          {paymentData.length > 0 ? (
+            <div className="flex items-center gap-6">
+              <ResponsiveContainer width="50%" height={250}>
+                <PieChart>
+                  <Pie data={paymentData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} dataKey="amount" nameKey="name" label={({ name, percent }: any) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}>
+                    {paymentData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip formatter={(v: any) => formatRp(Number(v))} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex-1 space-y-2">
+                {paymentData.map((p, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
+                    <span className="text-sm text-gray-600 flex-1">{p.name || 'Unknown'}</span>
+                    <span className="text-sm font-semibold">{formatRp(p.amount)}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
+          ) : (
+            <p className="text-gray-400 text-center py-8">Belum ada data</p>
+          )}
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ── Low Stock Alert ── */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">⚠️ Stok Rendah</h2>
+          {(data.low_stock_items || []).length > 0 ? (
+            <div className="space-y-3">
+              {data.low_stock_items.map((item, i) => (
+                <div key={i} className="flex items-center justify-between bg-red-50 rounded-lg p-3">
+                  <div>
+                    <p className="font-medium text-gray-800">{item.name}</p>
+                    <p className="text-xs text-gray-500 font-mono">{item.sku}</p>
+                  </div>
+                  <span className={`font-bold text-lg ${item.balance <= 3 ? 'text-red-600' : 'text-orange-500'}`}>
+                    {item.balance}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-green-600 text-center py-8">✅ Semua stok aman</p>
+          )}
+        </div>
+
+        {/* ── Recent Transactions ── */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">🧾 Transaksi Terakhir</h2>
+          <div className="space-y-2">
+            {(data.recent_transactions || []).slice(0, 8).map((tx, i) => (
+              <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                <div>
+                  <p className="text-sm font-mono font-medium text-gray-800">{tx.doc_key}</p>
+                  <p className="text-xs text-gray-500">{tx.customer_name || 'Tamu'}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold">{formatRp(tx.total)}</p>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    tx.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                  }`}>{tx.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KPICard({ label, value, icon, sub, alert }: { label: string; value: string; icon: string; sub?: string; alert?: boolean }) {
+  return (
+    <div className={`bg-white rounded-xl shadow-lg p-5 ${alert ? 'ring-2 ring-red-400' : ''}`}>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm text-gray-500">{label}</p>
+          <p className="text-xl font-bold text-gray-800 mt-1">{value}</p>
+          {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+        </div>
+        <span className="text-2xl">{icon}</span>
       </div>
     </div>
   );

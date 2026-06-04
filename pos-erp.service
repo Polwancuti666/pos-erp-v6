@@ -1,0 +1,23 @@
+[Unit]
+Description=POS-ERP V6 Backend (Beauty & Shine)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=appuser
+Group=appuser
+WorkingDirectory=/root/pos-erp-v6
+EnvironmentFile=/root/pos-erp-v6/.env
+Environment=PYTHONPATH=/root/pos-erp-v6/src
+ExecStart=/root/pos-erp-v6/.venv/bin/python -m uvicorn pos_erp.fastapi_app:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/root/pos-erp-v6
+
+[Install]
+WantedBy=multi-user.target

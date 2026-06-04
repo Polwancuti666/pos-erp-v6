@@ -1,0 +1,24 @@
+# CODEOWNERS — Automatic review assignments
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default: require review from maintainers
+*                       @dipa-maginov
+
+# Backend
+src/pos_erp/            @dipa-maginov
+tests/                  @dipa-maginov
+pyproject.toml          @dipa-maginov
+
+# Frontend
+frontend/               @dipa-maginov
+
+# Infrastructure
+Dockerfile              @dipa-maginov
+docker-compose.yml      @dipa-maginov
+.github/                @dipa-maginov
+Makefile                @dipa-maginov
+
+# Documentation
+docs/                   @dipa-maginov
+README.md               @dipa-maginov
+CONTRIBUTING.md         @dipa-maginov

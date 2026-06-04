@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { coaApi } from '@/api/client';
-import { CoaMapping, CoaAccount, MappingType, MappingStatusSummary } from '@/types';
+import { CoaMapping, CoaAccount, MappingType } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge';
 import LoadingSkeleton from '@/components/common/LoadingSkeleton';
 
@@ -12,11 +12,22 @@ const TABS: { value: MappingType | 'IMPORT'; label: string }[] = [
   { value: 'IMPORT', label: 'Bulk Import' },
 ];
 
+// Map API mapping_type to our tab types
+const TYPE_MAP: Record<string, MappingType> = {
+  'service_revenue': 'SERVICE',
+  'payment_method': 'PAYMENT_METHOD',
+  'discount': 'DISCOUNT',
+  'rounding': 'ROUNDING',
+  'cash_account': 'SERVICE',
+  'bank_account': 'SERVICE',
+  'staff_expense': 'SERVICE',
+};
+
 export default function CoaMappingPage() {
   const [activeTab, setActiveTab] = useState<MappingType | 'IMPORT'>('SERVICE');
-  const [mappings, setMappings] = useState<CoaMapping[]>([]);
-  const [accounts, setAccounts] = useState<CoaAccount[]>([]);
-  const [summary, setSummary] = useState<MappingStatusSummary | null>(null);
+  const [mappings, setMappings] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [summary, setSummary] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { loadData(); }, [activeTab]);
@@ -40,28 +51,37 @@ export default function CoaMappingPage() {
     try { await coaApi.deleteMapping(id); await loadData(); } catch { alert('Gagal menghapus'); }
   };
 
-  const unmappedCount = (type: MappingType) => {
-    if (!summary) return 0;
-    const key = type.toLowerCase().replace('_', '') as keyof MappingStatusSummary;
-    return summary[key]?.unmapped || 0;
+  const getUnmappedCount = (type: MappingType) => {
+    const item = summary.find((s: any) => TYPE_MAP[s.mapping_type] === type);
+    return item?.unmapped_count || 0;
+  };
+
+  const getTotalMappings = (type: MappingType) => {
+    const items = summary.filter((s: any) => TYPE_MAP[s.mapping_type] === type);
+    return items.reduce((acc: number, item: any) => acc + (item.total_mappings || 0), 0);
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-xl font-bold text-charcoal">COA Mapping</h2>
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold text-[var(--charcoal)]">COA Mapping</h2>
 
       {/* Status Summary */}
-      {summary && (
+      {summary.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-100 p-4">
-          <div className="flex items-center gap-4 text-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {(['SERVICE', 'PAYMENT_METHOD', 'DISCOUNT', 'ROUNDING'] as MappingType[]).map(type => {
-              const count = unmappedCount(type);
+              const unmapped = getUnmappedCount(type);
+              const total = getTotalMappings(type);
+              const label = TABS.find(t => t.value === type)?.label || type;
               return (
-                <div key={type} className="flex items-center gap-1">
-                  {count > 0 ? (
-                    <span className="text-red-600 font-medium">{count} belum di-mapping</span>
-                  ) : (
-                    <span className="text-green-600">✓ Lengkap</span>
+                <div key={type} className="text-center p-3 rounded-lg bg-gray-50">
+                  <div className="text-xs text-gray-500 mb-1">{label}</div>
+                  <div className="text-lg font-bold text-[var(--charcoal)]">{total}</div>
+                  {unmapped > 0 && (
+                    <div className="text-xs text-red-500 mt-1">{unmapped} belum di-mapping</div>
+                  )}
+                  {unmapped === 0 && total > 0 && (
+                    <div className="text-xs text-green-600 mt-1">✓ Lengkap</div>
                   )}
                 </div>
               );
@@ -76,8 +96,10 @@ export default function CoaMappingPage() {
           <button
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-              activeTab === tab.value ? 'bg-gold text-white' : 'bg-gray-100 text-gray-600'
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+              activeTab === tab.value
+                ? 'bg-[var(--gold)] text-white shadow-sm'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             {tab.label}
@@ -97,21 +119,23 @@ export default function CoaMappingPage() {
               <p className="text-4xl mb-2">📋</p>
               <p>Belum ada mapping</p>
             </div>
-          ) : mappings.map(m => (
-            <div key={m.id} className="bg-white rounded-xl border border-gray-100 p-4">
+          ) : mappings.map((m: any) => (
+            <div key={m.mapping_id} className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-sm transition-shadow">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-medium text-charcoal">{m.itemName}</p>
-                  <p className="text-sm text-gray-500">{m.itemCode}</p>
+                  <p className="font-medium text-[var(--charcoal)]">{m.source_key}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{m.mapping_type}</p>
                 </div>
-                <StatusBadge label={m.isActive ? 'Aktif' : 'Nonaktif'} variant={m.isActive ? 'success' : 'neutral'} />
+                <StatusBadge label="Aktif" variant="success" />
               </div>
-              <div className="mt-2 flex items-center justify-between">
+              <div className="mt-3 flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500">COA</p>
-                  <p className="text-sm font-mono text-charcoal">{m.accountCode} — {m.accountName}</p>
+                  <p className="text-sm font-mono text-[var(--charcoal)]">{m.account_code} — {m.account_name}</p>
                 </div>
-                <button onClick={() => handleDelete(m.id)} className="text-red-500 text-sm">Hapus</button>
+                <button onClick={() => handleDelete(m.mapping_id)} className="text-red-500 text-sm hover:text-red-700">
+                  Hapus
+                </button>
               </div>
             </div>
           ))}
@@ -130,8 +154,7 @@ function BulkImportPanel({ onSuccess }: { onSuccess: () => void }) {
     if (!file) return;
     setValidating(true);
     try {
-      // In real app, parse CSV/Excel here
-      const rows: any[] = []; // parsed rows
+      const rows: any[] = [];
       const data = await coaApi.bulkValidate(rows);
       setResults(data.results);
     } catch { alert('Gagal validasi'); }
@@ -154,10 +177,10 @@ function BulkImportPanel({ onSuccess }: { onSuccess: () => void }) {
         <p className="text-gray-500 mb-4">Upload file CSV/Excel</p>
         <input type="file" accept=".csv,.xlsx" onChange={e => setFile(e.target.files?.[0] || null)} className="mb-4" />
         <div className="flex gap-2 justify-center">
-          <button onClick={handleUpload} disabled={!file || validating} className="bg-gold text-white px-6 py-2 rounded-lg text-sm disabled:opacity-40">
+          <button onClick={handleUpload} disabled={!file || validating} className="bg-[var(--gold)] text-white px-6 py-2 rounded-lg text-sm disabled:opacity-40">
             {validating ? 'Validasi...' : 'Validasi'}
           </button>
-          <button className="bg-gray-100 text-charcoal px-6 py-2 rounded-lg text-sm">Download Template</button>
+          <button className="bg-gray-100 text-[var(--charcoal)] px-6 py-2 rounded-lg text-sm">Download Template</button>
         </div>
       </div>
 
@@ -171,7 +194,7 @@ function BulkImportPanel({ onSuccess }: { onSuccess: () => void }) {
               </span>
             </div>
           ))}
-          <button onClick={handleApply} className="w-full bg-gold text-white py-3 rounded-xl font-medium">
+          <button onClick={handleApply} className="w-full bg-[var(--gold)] text-white py-3 rounded-xl font-medium">
             Apply Import ({results.filter(r => r.valid).length} baris valid)
           </button>
         </div>

@@ -17,11 +17,13 @@ env/
 .idea/
 *.swp
 *.swo
+*~
 
 # Environment
 .env
 .env.local
 .env.*.local
+.env.save
 
 # OS
 .DS_Store
@@ -29,17 +31,35 @@ Thumbs.db
 
 # Testing
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 .coverage
 htmlcov/
 *.cover
 
-# Docker
+# Database
+*.db
+*.sqlite3
+
+# Save files
+*.save
+
+# Logs
 *.log
 
 # Cloudflare
-*.json
+wrangler.json
+wrangler.jsonc
 
 # Node
 node_modules/
 frontend/node_modules/
 frontend/dist/
+
+# Prevent root-level clutter
+/test_api*.py
+/smoke_test*.py
+/smoke_v2*.py
+/migrate_*.py
+/check_status*.py
+/apply_indexes*.py

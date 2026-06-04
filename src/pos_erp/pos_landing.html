@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#C9A96E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Beauty & Shine POS</title>
+  <style>
+    :root {
+      --gold: #C9A96E;
+      --gold-light: #E8D5A8;
+      --ivory: #FDFBF7;
+      --ivory-warm: #F8F4ED;
+      --rose: #C08081;
+      --charcoal: #1C1C1E;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--ivory);
+      color: var(--charcoal);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Header */
+    .header {
+      background: white;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--gold), var(--rose));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      box-shadow: 0 2px 8px rgba(201, 169, 110, 0.3);
+    }
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--charcoal);
+    }
+    .header-text p {
+      font-size: 11px;
+      color: #999;
+    }
+    /* Main */
+    .main {
+      flex: 1;
+      padding: 24px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .hero {
+      margin-bottom: 32px;
+    }
+    .hero h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin-bottom: 8px;
+    }
+    .hero p {
+      font-size: 14px;
+      color: #777;
+    }
+    /* Module Card */
+    .module-card {
+      display: block;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.03));
+      border: 1px solid #d1fae5;
+      border-radius: 20px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .module-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      border-color: #a7f3d0;
+    }
+    .module-card:active {
+      transform: translateY(0);
+    }
+    .card-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: #d1fae5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .card-text h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 4px;
+    }
+    .card-text p {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.5;
+    }
+    .card-arrow {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: #ccc;
+      transition: color 0.2s;
+    }
+    .module-card:hover .card-arrow {
+      color: var(--gold);
+    }
+    /* Quick Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .stat-card {
+      background: white;
+      border: 1px solid #f0f0f0;
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .stat-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .stat-icon { font-size: 18px; }
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--charcoal);
+    }
+    .stat-sub {
+      font-size: 10px;
+      color: #bbb;
+      margin-top: 2px;
+    }
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 11px;
+      color: #bbb;
+    }
+    /* Mobile Bottom Safe Area */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      .footer {
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">B</div>
+    <div class="header-text">
+      <h1>Beauty & Shine</h1>
+      <p>Point of Sale</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="hero">
+      <h2>Kasir</h2>
+      <p>Pilih modul untuk memulai transaksi</p>
+    </div>
+
+    <!-- Module Card: Kasir -->
+    <a href="/pos" class="module-card">
+      <div class="card-content">
+        <div class="card-icon">🛒</div>
+        <div class="card-text">
+          <h3>Kasir</h3>
+          <p>Buat transaksi baru, proses pembayaran cash/QRIS/transfer, dan kelola shift kasir</p>
+        </div>
+      </div>
+      <div class="card-arrow">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </div>
+    </a>
+
+    <!-- Quick Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-icon">💰</span>
+          <span class="stat-label">Hari Ini</span>
+        </div>
+        <div class="stat-value" id="today-sales">-</div>
+        <div class="stat-sub">Total Penjualan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-icon">📋</span>
+          <span class="stat-label">Transaksi</span>
+        </div>
+        <div class="stat-value" id="today-count">-</div>
+        <div class="stat-sub">Jumlah Transaksi</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Beauty & Shine POS v6.0
+  </div>
+
+  <script>
+    // Fetch today's stats
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/pos/shifts');
+        const data = await res.json();
+        if (data.current_shift) {
+          document.getElementById('today-sales').textContent = 
+            'Rp ' + (data.current_shift.total_sales || 0).toLocaleString('id-ID');
+          document.getElementById('today-count').textContent = 
+            data.current_shift.transaction_count || 0;
+        }
+      } catch (e) {
+        console.log('Stats not available');
+      }
+    }
+    loadStats();
+  </script>
+</body>
+</html>

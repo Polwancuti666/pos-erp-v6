@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beauty &amp; Shine — Executive Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #C9A96E;
+      --gold-light: #E8D5A8;
+      --ivory: #FDFBF7;
+      --ivory-warm: #F8F4ED;
+      --rose: #C08081;
+      --charcoal: #1C1C1E;
+      --charcoal-soft: #3A3A3C;
+      --green: #2D9F6E;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--ivory);
+      color: var(--charcoal);
+      min-height: 100vh;
+    }
+    /* ── Header ── */
+    .header {
+      background: white;
+      border-bottom: 1px solid #f0ece4;
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 1px 3px rgba(0,0,0,.03);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--gold), var(--rose));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 18px;
+    }
+    .header h1 { font-size: 17px; font-weight: 600; color: var(--charcoal); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .clock { font-size: 13px; color: #999; }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-links a {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      color: var(--charcoal-soft);
+      transition: all .2s;
+    }
+    .nav-links a:hover { background: var(--ivory-warm); color: var(--charcoal); }
+    /* ── Main ── */
+    .main { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--charcoal);
+    }
+    .page-sub { font-size: 14px; color: #999; margin-top: 4px; }
+    /* ── Filters ── */
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .filter-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .filter-select, .filter-date {
+      padding: 8px 12px;
+      border: 1.5px solid #e5e0d8;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      color: var(--charcoal);
+      background: white;
+      cursor: pointer;
+      transition: border-color .2s;
+      min-width: 160px;
+    }
+    .filter-select:focus, .filter-date:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,.1);
+    }
+    .btn-refresh {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, var(--gold), var(--rose));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all .2s;
+      align-self: flex-end;
+    }
+    .btn-refresh:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(201,169,110,.3);
+    }
+    /* ── KPI Cards ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .kpi-card {
+      background: white;
+      border: 1px solid #f0ece4;
+      border-radius: 16px;
+      padding: 20px;
+      transition: all .2s;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.06);
+      border-color: var(--gold-light);
+    }
+    .kpi-icon {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    .kpi-icon.revenue { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .kpi-icon.profit { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+    .kpi-icon.transactions { background: linear-gradient(135deg, #ede9fe, #ddd6fe); }
+    .kpi-icon.ticket { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .kpi-icon.customers { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+    .kpi-icon.treatments { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); }
+    .kpi-label { font-size: 12px; color: #999; font-weight: 500; margin-bottom: 4px; }
+    .kpi-value { font-size: 22px; font-weight: 700; color: var(--charcoal); }
+    .kpi-sub { font-size: 11px; color: #bbb; margin-top: 4px; }
+    /* ── Section ── */
+    .section {
+      background: white;
+      border: 1px solid #f0ece4;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f5f0e8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--charcoal);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-body { padding: 20px; }
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      border-bottom: 1px solid #f0ece4;
+    }
+    td {
+      padding: 12px;
+      font-size: 13px;
+      color: var(--charcoal-soft);
+      border-bottom: 1px solid #faf8f5;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--ivory); }
+    .rank {
+      width: 24px; height: 24px;
+      border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+    }
+    .rank-1 { background: #fef3c7; color: #b45309; }
+    .rank-2 { background: #e5e7eb; color: #6b7280; }
+    .rank-3 { background: #fed7aa; color: #c2410c; }
+    .rank-other { background: #f3f4f6; color: #9ca3af; }
+    .amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+    /* ── Branch bars ── */
+    .branch-bar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #faf8f5;
+    }
+    .branch-bar:last-child { border-bottom: none; }
+    .branch-name { width: 140px; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+    .bar-track {
+      flex: 1; height: 10px; background: #f5f0e8; border-radius: 5px; overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%; border-radius: 5px;
+      background: linear-gradient(90deg, var(--gold), var(--rose));
+      transition: width .6s ease;
+    }
+    .branch-stats { display: flex; gap: 16px; align-items: center; flex-shrink: 0; }
+    .branch-stat { font-size: 12px; color: #999; }
+    .branch-stat strong { color: var(--charcoal); }
+    .branch-revenue { font-size: 13px; font-weight: 600; width: 120px; text-align: right; flex-shrink: 0; }
+    /* ── Loading/Empty ── */
+    .loading {
+      text-align: center; padding: 40px;
+      color: #ccc; font-size: 14px;
+    }
+    .loading .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid #f0ece4;
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty { text-align: center; padding: 32px; color: #ccc; font-size: 13px; }
+    /* ── Two columns ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 768px) {
+      .two-col { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .header { padding: 12px 16px; }
+      .main { padding: 20px 12px; }
+      .page-title { font-size: 22px; }
+      .nav-links { display: none; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+      .filters { width: 100%; }
+      .filter-select, .filter-date { min-width: 100%; }
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #ccc;
+      border-top: 1px solid #f0ece4;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="brand">
+      <div class="logo">B</div>
+      <h1>Beauty &amp; Shine</h1>
+    </div>
+    <div class="header-right">
+      <div class="nav-links">
+        <a href="/app/login">📊 ERP</a>
+        <a href="/pos/login">🛒 POS</a>
+      </div>
+      <div class="clock" id="clock"></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <h2 class="page-title">Executive Dashboard</h2>
+        <p class="page-sub">Ringkasan performa bisnis</p>
+      </div>
+      <div class="filters">
+        <div class="filter-group">
+          <span class="filter-label">Cabang</span>
+          <select class="filter-select" id="filter-branch">
+            <option value="">Semua Cabang</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Dari Tanggal</span>
+          <input type="date" class="filter-date" id="filter-from">
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Sampai</span>
+          <input type="date" class="filter-date" id="filter-to">
+        </div>
+        <button class="btn-refresh" onclick="loadAll()">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-icon revenue">💰</div><div class="kpi-label">Revenue</div><div class="kpi-value" id="kpi-revenue">—</div><div class="kpi-sub">Total pendapatan</div></div>
+      <div class="kpi-card"><div class="kpi-icon profit">📈</div><div class="kpi-label">Profit</div><div class="kpi-value" id="kpi-profit">—</div><div class="kpi-sub">Pendapatan bersih</div></div>
+      <div class="kpi-card"><div class="kpi-icon transactions">🧾</div><div class="kpi-label">Transaksi</div><div class="kpi-value" id="kpi-transactions">—</div><div class="kpi-sub">Jumlah transaksi</div></div>
+      <div class="kpi-card"><div class="kpi-icon ticket">🎫</div><div class="kpi-label">Rata-rata</div><div class="kpi-value" id="kpi-avg">—</div><div class="kpi-sub">Per transaksi</div></div>
+      <div class="kpi-card"><div class="kpi-icon customers">👥</div><div class="kpi-label">Pelanggan</div><div class="kpi-value" id="kpi-customers">—</div><div class="kpi-sub">Pelanggan unik</div></div>
+      <div class="kpi-card"><div class="kpi-icon treatments">💆</div><div class="kpi-label">Treatment</div><div class="kpi-value" id="kpi-treatments">—</div><div class="kpi-sub">Total treatment</div></div>
+    </div>
+
+    <!-- Branch Comparison -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🏢 Perbandingan Cabang</div>
+      </div>
+      <div class="section-body" id="branch-content">
+        <div class="loading"><div class="spinner"></div>Memuat data...</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- Top Treatments -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">💆 Top Treatment</div>
+        </div>
+        <div class="section-body" id="treatments-content">
+          <div class="loading"><div class="spinner"></div>Memuat data...</div>
+        </div>
+      </div>
+
+      <!-- Top Therapists -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">👩‍⚕️ Top Therapist</div>
+        </div>
+        <div class="section-body" id="therapists-content">
+          <div class="loading"><div class="spinner"></div>Memuat data...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Beauty &amp; Shine Executive Dashboard &copy; 2026</div>
+
+<script>
+  // ── Helpers ──
+  function fmt(n) {
+    if (n == null || n === 0) return 'Rp 0';
+    return 'Rp ' + Number(n).toLocaleString('id-ID');
+  }
+  function fmtN(n) {
+    if (n == null) return '0';
+    return Number(n).toLocaleString('id-ID');
+  }
+
+  function updateClock() {
+    var el = document.getElementById('clock');
+    if (el) el.textContent = new Date().toLocaleDateString('id-ID', {weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'});
+  }
+  updateClock(); setInterval(updateClock, 30000);
+
+  // ── State ──
+  var branches = [];
+
+  // ── Get filter params ──
+  function getParams() {
+    var branchId = document.getElementById('filter-branch').value;
+    var dateFrom = document.getElementById('filter-from').value;
+    var dateTo = document.getElementById('filter-to').value;
+    var params = [];
+    if (branchId) params.push('branch_id=' + encodeURIComponent(branchId));
+    if (dateFrom) params.push('date_from=' + encodeURIComponent(dateFrom));
+    if (dateTo) params.push('date_to=' + encodeURIComponent(dateTo));
+    return params.length > 0 ? '?' + params.join('&') : '';
+  }
+
+  async function fetchJSON(url) {
+    var res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  // ── Load branches for dropdown ──
+  async function loadBranches() {
+    try {
+      var d = await fetchJSON('/api/executive/branch-comparison');
+      branches = d.branches || [];
+      var sel = document.getElementById('filter-branch');
+      // Clear existing options except first
+      while (sel.options.length > 1) sel.remove(1);
+      branches.forEach(function(b) {
+        var opt = document.createElement('option');
+        opt.value = b.id;
+        opt.textContent = b.branch_name;
+        sel.appendChild(opt);
+      });
+    } catch(e) {
+      console.error('Branch load error:', e);
+    }
+  }
+
+  // ── Load Summary ──
+  async function loadSummary() {
+    try {
+      var p = getParams();
+      var d = await fetchJSON('/api/executive/summary' + p);
+      document.getElementById('kpi-revenue').textContent = fmt(d.revenue);
+      var profitEl = document.getElementById('kpi-profit');
+      profitEl.textContent = fmt(d.profit);
+      profitEl.style.color = d.profit >= 0 ? '#2D9F6E' : '#DC2626';
+      document.getElementById('kpi-transactions').textContent = fmtN(d.transactions);
+      document.getElementById('kpi-avg').textContent = fmt(d.avg_ticket_size);
+      document.getElementById('kpi-customers').textContent = fmtN(d.new_customers);
+      document.getElementById('kpi-treatments').textContent = fmtN(d.total_treatments);
+    } catch(e) {
+      console.error('Summary error:', e);
+    }
+  }
+
+  // ── Load Branch Comparison ──
+  async function loadBranchComparison() {
+    try {
+      var p = getParams();
+      var d = await fetchJSON('/api/executive/branch-comparison' + p);
+      var el = document.getElementById('branch-content');
+      var list = d.branches || [];
+      if (list.length === 0) { el.innerHTML = '<div class="empty">Belum ada data cabang</div>'; return; }
+      var maxRev = Math.max.apply(null, list.map(function(b){return b.revenue||0}));
+      var html = '';
+      list.forEach(function(b) {
+        var pct = maxRev > 0 ? ((b.revenue||0) / maxRev * 100) : 0;
+        html += '<div class="branch-bar">' +
+          '<div class="branch-name">' + (b.branch_name||'—') + '</div>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>' +
+          '<div class="branch-stats">' +
+            '<div class="branch-stat"><strong>' + fmtN(b.transactions) + '</strong> trx</div>' +
+          '</div>' +
+          '<div class="branch-revenue">' + fmt(b.revenue) + '</div>' +
+          '</div>';
+      });
+      el.innerHTML = html;
+    } catch(e) {
+      document.getElementById('branch-content').innerHTML = '<div class="empty">Gagal memuat data</div>';
+    }
+  }
+
+  // ── Load Top Treatments ──
+  async function loadTreatments() {
+    try {
+      var p = getParams();
+      var sep = p ? '&' : '?';
+      var d = await fetchJSON('/api/executive/top-treatments' + p + sep + 'limit=5');
+      var el = document.getElementById('treatments-content');
+      if (!d.treatments || d.treatments.length === 0) { el.innerHTML = '<div class="empty">Belum ada data treatment</div>'; return; }
+      var html = '<table><thead><tr><th>#</th><th>Treatment</th><th>Booking</th><th>Revenue</th></tr></thead><tbody>';
+      d.treatments.forEach(function(t, i) {
+        var rc = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
+        html += '<tr><td><span class="rank '+rc+'">'+(i+1)+'</span></td>' +
+          '<td><strong>'+t.treatment_name+'</strong>'+(t.treatment_category?'<br><small style="color:#bbb">'+t.treatment_category+'</small>':'')+'</td>' +
+          '<td>'+fmtN(t.booking_count)+'</td>' +
+          '<td class="amount">'+fmt(t.total_revenue)+'</td></tr>';
+      });
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    } catch(e) {
+      document.getElementById('treatments-content').innerHTML = '<div class="empty">Gagal memuat data</div>';
+    }
+  }
+
+  // ── Load Top Therapists ──
+  async function loadTherapists() {
+    try {
+      var p = getParams();
+      var sep = p ? '&' : '?';
+      var d = await fetchJSON('/api/executive/top-therapists' + p + sep + 'limit=5');
+      var el = document.getElementById('therapists-content');
+      if (!d.therapists || d.therapists.length === 0) { el.innerHTML = '<div class="empty">Belum ada data therapist</div>'; return; }
+      var html = '<table><thead><tr><th>#</th><th>Therapist</th><th>Treatment</th><th>Revenue</th></tr></thead><tbody>';
+      d.therapists.forEach(function(t, i) {
+        var rc = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
+        html += '<tr><td><span class="rank '+rc+'">'+(i+1)+'</span></td>' +
+          '<td><strong>'+t.therapist_name+'</strong></td>' +
+          '<td>'+fmtN(t.treatments_done)+'</td>' +
+          '<td class="amount">'+fmt(t.total_revenue)+'</td></tr>';
+      });
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    } catch(e) {
+      document.getElementById('therapists-content').innerHTML = '<div class="empty">Gagal memuat data</div>';
+    }
+  }
+
+  // ── Load All ──
+  function loadAll() {
+    loadSummary();
+    loadBranchComparison();
+    loadTreatments();
+    loadTherapists();
+  }
+
+  // ── Init ──
+  // Set default date range to show all data (leave empty = all time)
+  document.getElementById('filter-from').value = '';
+  document.getElementById('filter-to').value = '';
+
+  // Load branches first, then data
+  loadBranches().then(function() { loadAll(); });
+
+  // Auto-refresh every 5 minutes
+  setInterval(loadAll, 300000);
+</script>
+</body>
+</html>

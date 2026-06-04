@@ -1,290 +1,231 @@
-# POS-ERP Integration Engine V6
+# POS-ERP V6 — Beauty & Shine
 
-> Modular monolith POS + ERP system untuk bisnis salon kecantikan & wellness (UMKM).
-
+[![CI](https://github.com/your-org/pos-erp-v6/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/pos-erp-v6/actions)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com)
-[![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16-336791.svg)](https://postgresql.org)
+[![Node 20](https://img.shields.io/badge/node-20-green.svg)](https://nodejs.org)
+[![PostgreSQL 15](https://img.shields.io/badge/PostgreSQL-15-336791.svg)](https://postgresql.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
----
-
-## Masalah yang Dipecahkan
-
-Bisnis salon UMKM di Indonesia membutuhkan sistem POS yang terintegrasi dengan ERP, namun solusi yang ada terlalu mahal atau terlalu kompleks. POS-ERP V6 menyediakan:
-
-- **Kasir offline** — tetap bisa transaksi walau internet mati
-- **Sinkronisasi otomatis** — data tersync ke ERP begitu koneksi pulih
-- **Akuntansi double-entry** — jurnal otomatis dari setiap transaksi
-- **Multi-pembayaran** — Cash, QRIS, dan Bank Transfer (BCA VA + Midtrans)
-- **Manajemen stok** — tracking pergerakan inventory real-time
-- **Koreksi transaksi** — matrix koreksi terstruktur (void, reversal, refund)
+Modular monolith POS + ERP system for salon and wellness businesses. Offline-first architecture with automatic sync, double-entry accounting, and multi-branch support.
 
 ---
 
-## Fitur Utama
+## Key Features
 
-| Fitur | Deskripsi |
-|---|---|
-| **Offline Checkout** | Transaksi berjalan tanpa internet; PaymentType: CASH / QRIS / BANK_TRANSFER |
-| **Sync Outbox** | Queue pattern dengan status PENDING → SYNCED / RETRYABLE_FAILED / ESCALATED |
-| **Accounting Posting** | Double-entry journal otomatis dengan COA mapping |
-| **Staff Locks** | Reservasi staff (10-min timeout) untuk menghindari konflik |
-| **Treatment Editing** | Tambah/hapus layanan sebelum pembayaran, saran reassign staff |
-| **Daily Closing** | Rekonsiliasi dual-threshold (Rp100k / 5%) |
-| **Correction Matrix** | Keputusan koreksi: local correction, ERP void, reversal journal, refund |
-| **Payment Providers** | BCA Virtual Account + Midtrans dengan verifikasi signature HMAC |
-| **RBAC** | 5 roles (cashier, branch_manager, accounting_lead, it_admin, owner) × 11 actions |
-| **Observability** | Health check (database/outbox/erp/payment), MetricsRegistry |
-| **Exception Queue** | Manajemen pengecualian dengan SLA tracking (2h–24h) |
-| **Period Lock** | Penguncian periode akuntansi |
-| **Document Numbering** | Penomoran otomatis POS/TRM/JRN/INV-MOV |
+| Feature | Description |
+|---------|-------------|
+| **Offline Checkout** | Process transactions without internet; auto-syncs when reconnected |
+| **Treatment Management** | Service catalog, therapist assignment, staff lock with timeout |
+| **Booking System** | Calendar view, customer management, bed/room assignment |
+| **Daily Closing** | Dual-threshold reconciliation (Rp 100k / 5%) |
+| **Inventory** | Stock cards, batch tracking, stock opname, BOM |
+| **Finance** | Journal entries, general ledger, COA management, period locking |
+| **Payment Providers** | Cash, QRIS, BCA Virtual Account, Midtrans (HMAC verification) |
+| **RBAC** | 5 roles × 11 actions: cashier, branch_manager, accounting_lead, it_admin, owner |
+| **Multi-Branch** | 4 branches (BSD, HQ, DPK, CBG) with per-branch data isolation |
+| **Export** | Products export to CSV, XLSX, PDF, JSON |
+| **Reporting** | Sales, inventory, and finance reports with export |
 
 ---
 
 ## Tech Stack
 
-- **Runtime:** Python 3.11
-- **Framework:** FastAPI
-- **Database:** PostgreSQL 16
-- **Containerization:** Docker + Docker Compose
-- **Networking:** Cloudflare Tunnel (subdomain: `pos.`, `erp.`, `dashboard.`, `api.`)
-- **Domain:** `beautynshine.web.id`
+**Backend:** Python 3.11 · FastAPI · PostgreSQL 15+ · psycopg  
+**Frontend:** React 18 · TypeScript · Tailwind CSS · Vite  
+**Infrastructure:** Docker · Cloudflare Tunnel · systemd  
+**Domain:** `beautynshine.web.id`
 
 ---
 
-## Arsitektur
-
-Modular monolith dengan pendekatan Domain-Driven Design (DDD). Setiap domain (POS, inventory, accounting, sync, dll.) adalah module terpisah dalam satu deployment.
+## Architecture
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│  POS Client  │────▶│  FastAPI App  │────▶│  PostgreSQL   │
-│  (Kasir)     │◀────│  (API Layer)  │     │  16           │
-└─────────────┘     └──────┬───────┘     └──────────────┘
-                           │
-                    ┌──────┴───────┐
-                    │  App Service  │
-                    │  (Orchestr.)  │
-                    └──────┬───────┘
-          ┌────────────────┼────────────────┐
-          ▼                ▼                ▼
-    ┌───────────┐   ┌───────────┐   ┌───────────┐
-    │  POS/Auth  │   │ Inventory │   │ Accounting│
-    │  Checkout  │   │ Treatment │   │ Reconcil. │
-    └───────────┘   └───────────┘   └───────────┘
-          │                │                │
-          ▼                ▼                ▼
-    ┌───────────┐   ┌───────────┐   ┌───────────┐
-    │  Payment   │   │   Sync    │   │  Security │
-    │  Providers │   │  Outbox   │   │  RBAC     │
-    └───────────┘   └───────────┘   └───────────┘
+┌─────────────────┐     ┌──────────────┐     ┌──────────────┐
+│  React Frontend  │────▶│  FastAPI App  │────▶│  PostgreSQL   │
+│  (Vite + TS)     │◀────│  (30 routers) │     │  15+          │
+└─────────────────┘     └──────┬───────┘     └──────────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              ▼                ▼                ▼
+        ┌───────────┐   ┌───────────┐   ┌───────────┐
+        │    POS     │   │ Inventory │   │ Accounting│
+        │  Checkout  │   │ Treatment │   │ Reconcil. │
+        └───────────┘   └───────────┘   └───────────┘
+              │                │                │
+              ▼                ▼                ▼
+        ┌───────────┐   ┌───────────┐   ┌───────────┐
+        │  Payment   │   │   Sync    │   │  Security │
+        │  Providers │   │  Outbox   │   │  RBAC     │
+        └───────────┘   └───────────┘   └───────────┘
 ```
+
+Detailed architecture: [docs/system-architecture.md](docs/system-architecture.md)
 
 ---
 
-## Struktur Folder
-
-```
-pos-erp-v6/
-├── src/pos_erp/
-│   ├── fastapi_app.py          # FastAPI app factory & routes
-│   ├── api.py                  # AppService — application layer orchestrator
-│   ├── auth.py                 # ERP login (admin/kasir)
-│   ├── pos_auth.py             # POS staff PIN auth + shift management
-│   ├── checkout.py             # Offline checkout (CASH/QRIS/BANK_TRANSFER)
-│   ├── payment.py              # Payment verification (QRIS callback, bank transfer, manual proof)
-│   ├── payment_providers.py    # BCA VA + Midtrans adapters
-│   ├── inventory.py            # Stock movement & inventory policy
-│   ├── treatment.py            # Treatment service editing
-│   ├── accounting.py           # Journal posting (double-entry)
-│   ├── reconciliation.py       # Daily closing + dual-threshold reconciliation
-│   ├── permissions.py          # RBAC (5 roles × 11 actions)
-│   ├── security.py             # Encryption (XOR+HMAC), SecretPolicy
-│   ├── staff_lock.py           # Staff reservation locks (10-min timeout)
-│   ├── sync.py                 # SyncQueue outbox pattern
-│   ├── sync_control.py         # Connectivity recovery, sync approval, BranchCache
-│   ├── document_finalization.py # POS/TRM/JRN document finalization
-│   ├── document_numbering.py   # NumberingService
-│   ├── period_lock.py          # Accounting period lock
-│   ├── correction.py           # Correction decision matrix
-│   ├── exception_queue.py      # Exception management + SLA tracking
-│   ├── dashboard.py            # Owner dashboard (BranchSnapshot)
-│   ├── beauty_ui.py            # HTML dashboard (gold/ivory theme)
-│   ├── observability.py        # Health check + metrics
-│   ├── persistence.py          # InMemoryRepository + UnitOfWork
-│   ├── postgresql.py           # PostgreSQL settings & connection URL
-│   ├── migrations.py           # Schema migration runner
-│   ├── deployment.py           # DeploymentManifest validation
-│   ├── adapters.py             # PaymentGatewayAdapter, ErpAdapter
-│   └── config.py               # AppConfig from env vars
-├── tests/                       # 27 test files
-├── docker-compose.yml
-├── .env.example
-├── README.md
-├── CONTRIBUTING.md
-├── CODE_OF_CONDUCT.md
-├── SECURITY.md
-└── CHANGELOG.md
-```
-
----
-
-## Instalasi
+## Quick Start
 
 ### Prerequisites
 
-- Docker & Docker Compose
-- Python 3.11 (untuk development lokal)
-- PostgreSQL 16 (jika tidak pakai Docker)
+- Python 3.11+
+- Node.js 20+
+- PostgreSQL 15+
 
-### 1. Clone Repository
+### Option A: Docker
 
 ```bash
 git clone https://github.com/your-org/pos-erp-v6.git
 cd pos-erp-v6
-```
-
-### 2. Setup Environment
-
-```bash
 cp .env.example .env
-# Edit .env sesuai kebutuhan (lihat bagian .env di bawah)
+# Edit .env with your database credentials
+docker-compose up -d
 ```
 
-### 3. Jalankan dengan Docker Compose
+### Option B: Manual Setup
 
 ```bash
-docker compose up -d
-```
+# 1. Clone
+git clone https://github.com/your-org/pos-erp-v6.git
+cd pos-erp-v6
 
-Service akan tersedia di:
-- **API:** `http://localhost:8000`
-- **Dashboard:** `http://localhost:8000/dashboard`
-- **Health Check:** `http://localhost:8000/health`
+# 2. Environment
+cp .env.example .env
 
-### 4. Jalankan Secara Lokal (tanpa Docker)
+# 3. Database
+createdb pos_erp
 
-```bash
-python -m venv .venv
+# 4. Backend
+python3.11 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install fastapi uvicorn psycopg pydantic python-jose passlib bcrypt
+uvicorn pos_erp.fastapi_app:app --host 0.0.0.0 --port 8000 --reload
 
-# Pastikan PostgreSQL berjalan dan .env terkonfigurasi
-python -m pos_erp.fastapi_app
+# 5. Frontend (new terminal)
+cd frontend
+npm install
+npm run dev
 ```
+
+Detailed setup: [docs/setup.md](docs/setup.md)
 
 ---
 
-## Konfigurasi `.env`
+## Environment Variables
 
-```env
-# Database
-DATABASE_URL=postgresql://pos_erp:secret@localhost:5432/pos_erp
+See [`.env.example`](.env.example) for all configuration options. Key variables:
 
-# Security
-ENCRYPTION_KEY=your-encryption-key-here
-HMAC_SECRET=your-hmac-secret-here
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `POS_ERP_DATABASE_URL` | PostgreSQL connection string | Yes |
+| `POS_ERP_SECRET_KEY` | JWT signing secret | Yes |
+| `POSTGRES_HOST` | Database host | Yes |
+| `POSTGRES_PORT` | Database port (default: 5432) | No |
+| `CORS_ORIGINS` | Allowed frontend origins | No |
+| `CLOUDFLARE_TUNNEL_TOKEN` | Cloudflare tunnel token | No |
 
-# Payment Providers
-MIDTRANS_SERVER_KEY=your-midtrans-key
-MIDTRANS_CLIENT_KEY=your-midtrans-client-key
-BCA_VIRTUAL_ACCOUNT_KEY=your-bca-va-key
+---
 
-# ERP
-ERP_BASE_URL=https://erp.beautynshine.web.id
-ERP_API_KEY=your-erp-api-key
+## Development
 
-# Application
-APP_ENV=development
-BRANCH_ID=branch-001
-SYNC_INTERVAL_SECONDS=30
+```bash
+# Backend (with hot reload)
+uvicorn pos_erp.fastapi_app:app --host 0.0.0.0 --port 8000 --reload
+
+# Frontend (with HMR)
+cd frontend && npm run dev
+
+# Run tests
+pytest tests/ -v
+
+# Lint
+ruff check src/
 ```
-
-Lihat `src/pos_erp/config.py` untuk daftar lengkap environment variables.
 
 ---
 
 ## Testing
 
 ```bash
-# Jalankan semua test
-pytest
+# Backend tests
+pytest tests/ -v --timeout=30
 
-# Dengan coverage
-pytest --cov=src/pos_erp --cov-report=html
+# Frontend type check
+cd frontend && npx tsc --noEmit
 
-# Jalankan test tertentu
-pytest tests/test_checkout.py -v
+# Smoke test
+python smoke_test.py
 ```
-
-Tersedia **27 test files** yang mencakup seluruh modul.
 
 ---
 
 ## Deployment
 
-### Production dengan Docker Compose + Cloudflare Tunnel
+- **Docker:** `docker-compose up -d`
+- **systemd:** `sudo systemctl start pos-erp`
+- **Cloudflare Tunnel:** See [docs/deployment-guide.md](docs/deployment-guide.md)
 
-```bash
-# Build dan jalankan
-docker compose -f docker-compose.yml up -d --build
+---
 
-# Jalankan migrations
-docker compose exec api python -m pos_erp.migrations
+## Folder Structure
 
-# Pastikan cloudflared tunnel aktif untuk:
-# - pos.beautynshine.web.id
-# - erp.beautynshine.web.id
-# - dashboard.beautynshine.web.id
-# - api.beautynshine.web.id
 ```
+pos-erp-v6/
+├── src/pos_erp/          # Python backend
+│   ├── routers/          # 30+ API route modules
+│   ├── auth.py           # JWT authentication
+│   ├── db.py             # Database connection pool
+│   ├── config.py         # Environment configuration
+│   └── fastapi_app.py    # FastAPI application entry
+├── frontend/             # React + TypeScript
+│   ├── src/pages/        # Page components
+│   ├── src/components/   # Shared components
+│   ├── src/api/          # API client
+│   └── src/hooks/        # Custom React hooks
+├── tests/                # pytest test suite
+├── docs/                 # Documentation
+├── .github/              # CI, issue templates
+├── Dockerfile            # Container build
+├── docker-compose.yml    # Local services
+└── pyproject.toml        # Python project config
+```
+
+---
+
+## API Documentation
+
+- **Swagger UI:** http://localhost:8000/docs (dev mode)
+- **Reference:** [docs/api-reference.md](docs/api-reference.md)
 
 ---
 
 ## Roadmap
 
-### Phase 1 — Core POS *(saat ini, v0.1.0)*
-- [x] Offline checkout (CASH/QRIS/Bank Transfer)
-- [x] Payment verification & providers (BCA VA, Midtrans)
-- [x] Sync outbox pattern
-- [x] Staff PIN auth + shift management
-- [x] RBAC permissions
-- [x] Accounting journal posting
-- [x] Daily closing & reconciliation
+- **v0.1** (Done): POS core, checkout, treatment, booking, closing
+- **v0.2** (In Progress): Inventory, accounting, reporting
+- **v0.3** (Planned): Multi-branch sync, mobile app, analytics
+- **v1.0** (Target): Production-ready full ERP suite
 
-### Phase 2 — Full ERP Integration *(planned)*
-- [ ] Full ERP document sync (invoices, purchase orders)
-- [ ] Customer loyalty & membership
-- [ ] Payroll integration
-- [ ] Tax reporting (PPN)
-- [ ] Branch inventory transfer
-
-### Phase 3 — Multi-Branch + iPad *(planned)*
-- [ ] Native iPad POS app
-- [ ] Real-time cross-branch inventory
-- [ ] Centralized reporting dashboard
-- [ ] Franchise management module
-- [ ] API v2 dengan GraphQL
-
-> Fitur yang ditandai *(planned)* belum diimplementasikan dan akan dikembangkan di versi mendatang.
+See [docs/roadmap.md](docs/roadmap.md) for details.
 
 ---
 
-## Kontribusi
+## Contributing
 
-Kami welcome kontribusi! Silakan baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk panduan lengkap.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Branch naming conventions
+- Commit message format
+- Pull request process
+- Code review checklist
 
 ---
 
 ## License
 
-[MIT](LICENSE) — bebas digunakan, dimodifikasi, dan didistribusikan.
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
 
 ---
 
-## Kontak
+## Maintainer
 
-- **Domain:** beautynshine.web.id
-- **Issues:** GitHub Issues untuk bug report dan feature request
-- **Security:** Lihat [SECURITY.md](SECURITY.md) untuk pelaporan vulnerability
+**Beauty & Shine Development Team**  
+Domain: `beautynshine.web.id`

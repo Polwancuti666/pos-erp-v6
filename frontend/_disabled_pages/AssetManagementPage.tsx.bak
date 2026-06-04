@@ -1,0 +1,621 @@
+import { useState, useEffect } from 'react';
+import { fetchJSON } from '../api/client';
+
+// ─── Types ──────────────────────────────────────────────────────────
+interface Asset {
+  id: string;
+  asset_code: string;
+  name: string;
+  category: string;
+  description?: string;
+  purchase_date?: string;
+  purchase_cost: number;
+  useful_life_months: number;
+  depreciation_method: string;
+  salvage_value: number;
+  location?: string;
+  current_value: number;
+  status: string;
+  accumulated_depreciation?: number;
+  disposal_date?: string;
+  disposal_method?: string;
+  disposal_price?: number;
+}
+
+interface AssetSummary {
+  total_assets: number;
+  total_purchase_cost: number;
+  total_depreciation: number;
+  net_book_value: number;
+  by_category: { category: string; count: number; total_purchase_cost: number }[];
+}
+
+interface DepreciationRecord {
+  id: string;
+  period_date: string;
+  amount: number;
+  method: string;
+}
+
+interface MaintenanceRecord {
+  id: string;
+  maintenance_date: string;
+  description: string;
+  cost: number;
+  vendor?: string;
+  next_maintenance_date?: string;
+  notes?: string;
+}
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n || 0);
+
+const statusColor: Record<string, string> = {
+  active: 'bg-green-100 text-green-700',
+  maintenance: 'bg-yellow-100 text-yellow-700',
+  disposed: 'bg-red-100 text-red-700',
+  expiring: 'bg-orange-100 text-orange-700',
+};
+
+const CATEGORIES = ['Furniture', 'Equipment', 'IT', 'Vehicle', 'Building', 'Machine', 'Other'];
+const METHODS = ['straight_line', 'declining_balance'];
+
+// ─── Main Page ──────────────────────────────────────────────────────
+export default function AssetManagementPage() {
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [summary, setSummary] = useState<AssetSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [view, setView] = useState<'list' | 'add' | 'edit'>('list');
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [showDepreciation, setShowDepreciation] = useState<string | null>(null);
+  const [showMaintenance, setShowMaintenance] = useState<string | null>(null);
+  const [deprHistory, setDeprHistory] = useState<DepreciationRecord[]>([]);
+  const [maintHistory, setMaintHistory] = useState<MaintenanceRecord[]>([]);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterCategory, setFilterCategory] = useState('all');
+
+  const load = () => {
+    setLoading(true);
+    Promise.all([fetchJSON('/asset'), fetchJSON('/asset/summary')])
+      .then(([res, sum]) => {
+        setAssets(Array.isArray(res) ? res : res.items || res.data || []);
+        setSummary(sum);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(load, []);
+
+  // ─── Actions ──────────────────────────────────────────────────────
+  const handleAction = async (id: string, action: string) => {
+    setActionLoading(`${id}-${action}`);
+    try {
+      await fetchJSON(`/asset/${id}/${action}`, { method: 'POST' });
+      load();
+    } catch (err: any) {
+      alert('Error: ' + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const loadDeprHistory = async (assetId: string) => {
+    setShowDepreciation(assetId);
+    try {
+      const res = await fetchJSON(`/asset/${assetId}/depreciation-history`);
+      setDeprHistory(Array.isArray(res) ? res : res.items || []);
+    } catch {
+      setDeprHistory([]);
+    }
+  };
+
+  const loadMaintHistory = async (assetId: string) => {
+    setShowMaintenance(assetId);
+    try {
+      const res = await fetchJSON(`/asset/${assetId}/maintenance-history`);
+      setMaintHistory(Array.isArray(res) ? res : res.items || []);
+    } catch {
+      setMaintHistory([]);
+    }
+  };
+
+  // ─── Filter ──────────────────────────────────────────────────────
+  const filtered = assets.filter((a) => {
+    const matchSearch =
+      !search ||
+      a.name.toLowerCase().includes(search.toLowerCase()) ||
+      a.asset_code.toLowerCase().includes(search.toLowerCase()) ||
+      a.category.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = filterStatus === 'all' || a.status === filterStatus;
+    const matchCategory = filterCategory === 'all' || a.category === filterCategory;
+    return matchSearch && matchStatus && matchCategory;
+  });
+
+  // ─── Render ──────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#C9A96E]" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">🏢 Asset Management</h1>
+            <p className="text-sm text-gray-500 mt-1">Kelola aset, depresiasi, dan maintenance</p>
+          </div>
+          <button
+            onClick={() => { setSelectedAsset(null); setView('add'); }}
+            className="bg-[#C9A96E] text-white px-4 py-2 rounded-lg hover:bg-[#b8985d] text-sm font-medium"
+          >
+            + Tambah Aset
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">✕</button>
+          </div>
+        )}
+
+        {/* ─── Summary Cards ──────────────────────────────────────── */}
+        {summary && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <SummaryCard label="Total Aset" value={String(summary.total_assets)} icon="📦" />
+            <SummaryCard label="Nilai Perolehan" value={fmt(summary.total_purchase_cost)} icon="💰" color="text-[#C9A96E]" />
+            <SummaryCard label="Akumulasi Depresiasi" value={fmt(summary.total_depreciation)} icon="📉" color="text-red-600" />
+            <SummaryCard label="Nilai Buku Bersih" value={fmt(summary.net_book_value)} icon="✅" color="text-green-600" />
+          </div>
+        )}
+
+        {/* Category breakdown */}
+        {summary && summary.by_category && summary.by_category.length > 0 && (
+          <div className="bg-white rounded-xl border p-4">
+            <h3 className="text-sm font-semibold text-gray-600 mb-3">Kategori Aset</h3>
+            <div className="flex flex-wrap gap-3">
+              {summary.by_category.map((c) => (
+                <div key={c.category} className="bg-gray-50 rounded-lg px-4 py-2 border">
+                  <p className="text-xs text-gray-500">{c.category || 'Tanpa Kategori'}</p>
+                  <p className="font-semibold">{c.count} aset</p>
+                  <p className="text-xs text-gray-400">{fmt(c.total_purchase_cost)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ─── Filters ──────────────────────────────────────────── */}
+        <div className="bg-white rounded-xl border p-4">
+          <div className="flex flex-wrap gap-3 items-center">
+            <input
+              type="text"
+              placeholder="Cari kode, nama, kategori..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 min-w-[200px] border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#C9A96E] focus:border-transparent"
+            />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="border rounded-lg px-3 py-2 text-sm"
+            >
+              <option value="all">Semua Status</option>
+              <option value="active">Active</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="disposed">Disposed</option>
+            </select>
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="border rounded-lg px-3 py-2 text-sm"
+            >
+              <option value="all">Semua Kategori</option>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <span className="text-sm text-gray-400">{filtered.length} aset</span>
+          </div>
+        </div>
+
+        {/* ─── Asset Table ──────────────────────────────────────── */}
+        <div className="bg-white rounded-xl border overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-[#C9A96E] text-white">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm">Kode</th>
+                <th className="px-4 py-3 text-left text-sm">Nama</th>
+                <th className="px-4 py-3 text-left text-sm">Kategori</th>
+                <th className="px-4 py-3 text-left text-sm">Lokasi</th>
+                <th className="px-4 py-3 text-right text-sm">Harga Perolehan</th>
+                <th className="px-4 py-3 text-right text-sm">Nilai Buku</th>
+                <th className="px-4 py-3 text-left text-sm">Status</th>
+                <th className="px-4 py-3 text-left text-sm">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-12 text-gray-400">
+                    <p className="text-3xl mb-2">🏢</p>
+                    <p>Belum ada data aset</p>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((a) => (
+                  <tr key={a.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-mono text-sm font-medium">{a.asset_code}</td>
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-sm">{a.name}</p>
+                      {a.description && <p className="text-xs text-gray-400 truncate max-w-[200px]">{a.description}</p>}
+                    </td>
+                    <td className="px-4 py-3 text-sm">{a.category || '-'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500">{a.location || '-'}</td>
+                    <td className="px-4 py-3 text-right text-sm">{fmt(a.purchase_cost)}</td>
+                    <td className="px-4 py-3 text-right text-sm font-semibold">{fmt(a.current_value)}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor[a.status] || 'bg-gray-100 text-gray-600'}`}>
+                        {a.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        <button
+                          onClick={() => { setSelectedAsset(a); setView('edit'); }}
+                          className="text-blue-600 hover:underline text-xs"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => loadDeprHistory(a.id)}
+                          className="text-purple-600 hover:underline text-xs"
+                        >
+                          Depresiasi
+                        </button>
+                        <button
+                          onClick={() => loadMaintHistory(a.id)}
+                          className="text-yellow-600 hover:underline text-xs"
+                        >
+                          Maintenance
+                        </button>
+                        {a.status !== 'disposed' && (
+                          <>
+                            <button
+                              onClick={() => handleAction(a.id, 'depreciate')}
+                              disabled={actionLoading === `${a.id}-depreciate`}
+                              className="text-indigo-600 hover:underline text-xs disabled:opacity-50"
+                            >
+                              {actionLoading === `${a.id}-depreciate` ? '...' : '📋 Run Depreciation'}
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Dispose aset "${a.name}"? Tindakan ini tidak dapat dibatalkan.`)) {
+                                  const date = prompt('Tanggal dispose (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+                                  if (date) {
+                                    const method = prompt('Metode (sold/scrapped/donated):', 'sold') || 'sold';
+                                    const price = parseFloat(prompt('Harga jual:', '0') || '0');
+                                    fetchJSON(`/asset/${a.id}/dispose`, {
+                                      method: 'POST',
+                                      body: JSON.stringify({ dispose_date: date, disposal_method: method, disposal_price: price }),
+                                    }).then(load).catch((e) => alert('Error: ' + e.message));
+                                  }
+                                }
+                              }}
+                              className="text-red-600 hover:underline text-xs"
+                            >
+                              🗑 Dispose
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ─── Add/Edit Modal ──────────────────────────────────────── */}
+      {(view === 'add' || view === 'edit') && (
+        <AssetFormModal
+          asset={view === 'edit' ? selectedAsset : null}
+          onClose={() => { setView('list'); setSelectedAsset(null); }}
+          onSaved={() => { setView('list'); setSelectedAsset(null); load(); }}
+        />
+      )}
+
+      {/* ─── Depreciation History Modal ──────────────────────────── */}
+      {showDepreciation && (
+        <Modal title="Riwayat Depresiasi" onClose={() => { setShowDepreciation(null); setDeprHistory([]); }}>
+          {deprHistory.length === 0 ? (
+            <p className="text-gray-400 text-center py-8">Belum ada depresiasi</p>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs text-gray-500">Periode</th>
+                  <th className="px-4 py-2 text-right text-xs text-gray-500">Jumlah</th>
+                  <th className="px-4 py-2 text-left text-xs text-gray-500">Metode</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {deprHistory.map((d) => (
+                  <tr key={d.id}>
+                    <td className="px-4 py-2 text-sm">{d.period_date}</td>
+                    <td className="px-4 py-2 text-sm text-right">{fmt(d.amount)}</td>
+                    <td className="px-4 py-2 text-sm">{d.method}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Modal>
+      )}
+
+      {/* ─── Maintenance History Modal ──────────────────────────── */}
+      {showMaintenance && (
+        <Modal title="Riwayat Maintenance" onClose={() => { setShowMaintenance(null); setMaintHistory([]); }}>
+          {maintHistory.length === 0 ? (
+            <p className="text-gray-400 text-center py-8">Belum ada catatan maintenance</p>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs text-gray-500">Tanggal</th>
+                  <th className="px-4 py-2 text-left text-xs text-gray-500">Deskripsi</th>
+                  <th className="px-4 py-2 text-right text-xs text-gray-500">Biaya</th>
+                  <th className="px-4 py-2 text-left text-xs text-gray-500">Vendor</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {maintHistory.map((m) => (
+                  <tr key={m.id}>
+                    <td className="px-4 py-2 text-sm">{m.maintenance_date}</td>
+                    <td className="px-4 py-2 text-sm">{m.description}</td>
+                    <td className="px-4 py-2 text-sm text-right">{fmt(m.cost)}</td>
+                    <td className="px-4 py-2 text-sm">{m.vendor || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <div className="mt-4 border-t pt-4">
+            <h4 className="text-sm font-medium mb-2">+ Tambah Maintenance</h4>
+            <AddMaintenanceForm
+              assetId={showMaintenance}
+              onDone={() => loadMaintHistory(showMaintenance)}
+            />
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ─── Sub Components ─────────────────────────────────────────────────
+function SummaryCard({ label, value, icon, color }: { label: string; value: string; icon: string; color?: string }) {
+  return (
+    <div className="bg-gradient-to-br from-[#C9A96E]/10 to-[#C08081]/10 rounded-xl p-4">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-lg">{icon}</span>
+        <p className="text-xs text-gray-500">{label}</p>
+      </div>
+      <p className={`text-xl font-bold ${color || 'text-gray-800'}`}>{value}</p>
+    </div>
+  );
+}
+
+function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b">
+          <h3 className="text-lg font-bold">{title}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+        </div>
+        <div className="p-6">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function AssetFormModal({ asset, onClose, onSaved }: { asset: Asset | null; onClose: () => void; onSaved: () => void }) {
+  const [form, setForm] = useState({
+    asset_code: asset?.asset_code || '',
+    name: asset?.name || '',
+    category: asset?.category || 'Equipment',
+    description: asset?.description || '',
+    purchase_date: asset?.purchase_date || '',
+    purchase_cost: String(asset?.purchase_cost || ''),
+    useful_life_months: String(asset?.useful_life_months || ''),
+    depreciation_method: asset?.depreciation_method || 'straight_line',
+    salvage_value: String(asset?.salvage_value || '0'),
+    location: asset?.location || '',
+    status: asset?.status || 'active',
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const body = {
+        ...form,
+        purchase_cost: parseFloat(form.purchase_cost) || 0,
+        useful_life_months: parseInt(form.useful_life_months) || 0,
+        salvage_value: parseFloat(form.salvage_value) || 0,
+      };
+      if (asset) {
+        await fetchJSON(`/asset/${asset.id}`, { method: 'PUT', body: JSON.stringify(body) });
+      } else {
+        await fetchJSON('/asset', { method: 'POST', body: JSON.stringify(body) });
+      }
+      onSaved();
+    } catch (err: any) {
+      alert('Error: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b">
+          <h3 className="text-lg font-bold">{asset ? 'Edit Aset' : 'Tambah Aset Baru'}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Kode Aset *</label>
+              <input value={form.asset_code} onChange={(e) => setForm({ ...form, asset_code: e.target.value })} required
+                className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="AST-001" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Kategori</label>
+              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 text-sm">
+                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Nama Aset *</label>
+            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required
+              className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Facial Machine" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Deskripsi</label>
+            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="w-full border rounded-lg px-3 py-2 text-sm" rows={2} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Tanggal Beli</label>
+              <input type="date" value={form.purchase_date} onChange={(e) => setForm({ ...form, purchase_date: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Harga Perolehan *</label>
+              <input type="number" value={form.purchase_cost} onChange={(e) => setForm({ ...form, purchase_cost: e.target.value })} required
+                className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="0" />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Umur Ekonomis (bln)</label>
+              <input type="number" value={form.useful_life_months} onChange={(e) => setForm({ ...form, useful_life_months: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="60" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Metode</label>
+              <select value={form.depreciation_method} onChange={(e) => setForm({ ...form, depreciation_method: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 text-sm">
+                {METHODS.map((m) => <option key={m} value={m}>{m === 'straight_line' ? 'Garis Lurus' : 'Saldo Menurun'}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Nilai Sisa</label>
+              <input type="number" value={form.salvage_value} onChange={(e) => setForm({ ...form, salvage_value: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="0" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Lokasi</label>
+              <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Cabang HQ" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+              <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 text-sm">
+                <option value="active">Active</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose}
+              className="flex-1 py-2.5 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+              Batal
+            </button>
+            <button type="submit" disabled={saving}
+              className="flex-1 py-2.5 bg-[#C9A96E] text-white rounded-lg text-sm font-medium hover:bg-[#b8985d] disabled:opacity-50">
+              {saving ? 'Menyimpan...' : asset ? 'Simpan Perubahan' : 'Tambah Aset'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function AddMaintenanceForm({ assetId, onDone }: { assetId: string; onDone: () => void }) {
+  const [form, setForm] = useState({
+    maintenance_date: new Date().toISOString().split('T')[0],
+    description: '',
+    cost: '0',
+    vendor: '',
+    notes: '',
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await fetchJSON(`/asset/${assetId}/maintenance`, {
+        method: 'POST',
+        body: JSON.stringify({
+          ...form,
+          cost: parseFloat(form.cost) || 0,
+        }),
+      });
+      setForm({ maintenance_date: new Date().toISOString().split('T')[0], description: '', cost: '0', vendor: '', notes: '' });
+      onDone();
+    } catch (err: any) {
+      alert('Error: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <input type="date" value={form.maintenance_date} onChange={(e) => setForm({ ...form, maintenance_date: e.target.value })}
+          className="border rounded px-3 py-2 text-sm" required />
+        <input type="number" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })}
+          className="border rounded px-3 py-2 text-sm" placeholder="Biaya" />
+      </div>
+      <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+        className="w-full border rounded px-3 py-2 text-sm" placeholder="Deskripsi maintenance" required />
+      <div className="grid grid-cols-2 gap-3">
+        <input value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })}
+          className="border rounded px-3 py-2 text-sm" placeholder="Vendor (opsional)" />
+        <input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          className="border rounded px-3 py-2 text-sm" placeholder="Catatan (opsional)" />
+      </div>
+      <button type="submit" disabled={saving}
+        className="bg-[#C9A96E] text-white px-4 py-2 rounded text-sm hover:bg-[#b8985d] disabled:opacity-50">
+        {saving ? 'Menyimpan...' : 'Simpan'}
+      </button>
+    </form>
+  );
+}

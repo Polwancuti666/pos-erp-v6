@@ -15,12 +15,24 @@ class ConfirmationRequired(Exception):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass
 class ServiceCatalog:
     prices: dict[str, Decimal]
 
     def price_for(self, service_id: str) -> Decimal:
-        return self.prices[service_id]
+        if service_id in self.prices:
+            return self.prices[service_id]
+        # Fallback: load from database
+        try:
+            from pos_erp.db import fetch_one
+            row = fetch_one("SELECT price FROM treatment WHERE id = %s AND is_active = true", (service_id,))
+            if row:
+                price = Decimal(str(row["price"]))
+                self.prices[service_id] = price  # cache for next time
+                return price
+        except Exception:
+            pass
+        raise KeyError(f"service '{service_id}' not found in catalog or database")
 
 
 @dataclass
