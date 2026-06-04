@@ -11,9 +11,10 @@ This system provides:
 - **Full restore capability** — Restore on any new VPS
 - **Backup verification** — Verify backups before restore
 - **Cron job management** — Easy setup and removal
-
+- **External backup** — Backup ke GitHub/Telegram/Email (anti hilang!)
 ---
 
+## Quick Start
 ## Quick Start
 
 ### Create a Backup Now
@@ -24,6 +25,14 @@ This system provides:
 
 # Quick backup (database + .env only)
 ./scripts/backup/backup-quick.sh
+
+# External backup (GitHub/Telegram/Email)
+#./scripts/backup/backup-external.sh --dest github
+#./scripts/backup/backup-external.sh --dest telegram
+#./scripts/backup/backup-external.sh --dest all
+
+# Complete backup (local + external)
+#./scripts/backup/backup-complete.sh --external
 ```
 
 ### Setup Automated Backups
@@ -56,6 +65,22 @@ This system provides:
 ./scripts/backup/verify-backup.sh --backup /path/to/backup.tar.gz
 ```
 
+### Setup External Backup
+
+```bash
+# Interactive setup
+#./scripts/backup/setup-external-backup.sh
+
+# Or manual:
+# Backup ke GitHub
+#./scripts/backup/backup-external.sh --dest github
+
+# Backup ke Telegram
+#./scripts/backup/backup-external.sh --dest telegram
+
+# Backup ke semua destinasi
+#./scripts/backup/backup-external.sh --dest all
+```
 ---
 
 ## Scripts
@@ -241,6 +266,100 @@ Default backup location:
 └── backup.log
 ```
 
+## External Backup Destinations
+
+Backup ke external storage agar bisa restore dari mana saja meskipun VPS lama mati.
+
+### 1. GitHub Private Repo (Recommended)
+
+**Kelebihan:**
+- Gratis untuk private repo
+- Version control (bisa lihat history backup)
+- Bisa diakses dari mana saja
+- Tidak hilang kalau VPS mati
+
+**Setup:**
+```bash
+# Install GitHub CLI
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+sudo apt update && sudo apt install gh
+
+# Login
+gh auth login
+
+# Create backup repo
+gh repo create Polwancuti666/pos-erp-backups --private
+
+# Backup
+#./scripts/backup/backup-external.sh --dest github
+```
+
+**Restore:**
+```bash
+# Clone backup repo
+gh repo clone Polwancuti666/pos-erp-backups
+cd pos-erp-backups
+
+# Find latest backup
+ls -lh *.tar.gz
+
+# Restore
+#./scripts/backup/restore-full.sh --backup pos-erp-backup-*.tar.gz
+```
+
+### 2. Telegram
+
+**Kelebihan:**
+- Mudah diakses dari HP
+- Notifikasi langsung ke HP
+- Gratis
+
+**Kekurangan:**
+- Max file size 50MB
+- Tidak ada version control
+
+**Setup:**
+```bash
+# 1. Buat Telegram Bot via @BotFather
+# 2. Dapatkan bot token
+# 3. Dapatkan chat ID (kirim pesan ke bot, lalu cek https://api.telegram.org/bot<TOKEN>/getUpdates)
+# 4. Tambahkan ke .env:
+#    TELEGRAM_BOT_TOKEN=your_b...
+#    TELEGRAM_CHAT_ID=your_chat_id
+
+# Backup
+#./scripts/backup/backup-external.sh --dest telegram
+```
+
+### 3. Email
+
+**Kelebihan:**
+- Mudah diakses
+- Bisa auto-forward ke email lain
+
+**Kekurangan:**
+- Max attachment ~25MB
+- Butuh mailutils installed
+
+**Setup:**
+```bash
+# Install mailutils
+apt install mailutils
+
+# Tambahkan ke .env:
+#    BACKUP_EMAIL=your@email.com
+
+# Backup
+#./scripts/backup/backup-external.sh --dest email
+```
+
+### 4. Semua Destinasi
+
+```bash
+# Backup ke semua destinasi sekaligus
+#./scripts/backup/backup-external.sh --dest all
+```
 ---
 
 ## Restore Process
