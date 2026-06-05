@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beauty & Shine ERP — BPMN 2.0 Process Diagrams</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#e0e0e0}
+.hero{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#0a0a2e,#1a0a3e)}
+.hero h1{font-size:2.4em;background:linear-gradient(135deg,#f0c27f,#fc5c7d);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:#8888aa;margin-top:8px}
+.controls{display:flex;justify-content:center;gap:10px;padding:20px;flex-wrap:wrap}
+.controls button{padding:10px 20px;border:1px solid #333;border-radius:8px;background:#15152a;color:#ccc;cursor:pointer;font-size:13px;transition:.2s}
+.controls button:hover,.controls button.active{background:#2a1a4a;border-color:#f0c27f;color:#f0c27f}
+.container{max-width:1600px;margin:0 auto;padding:20px}
+.bpmn-section{margin:40px 0}
+.bpmn-section h2{text-align:center;font-size:1.6em;color:#f0c27f;margin-bottom:8px}
+.bpmn-section>p{text-align:center;color:#666;margin-bottom:20px}
+.bpmn-canvas{background:#0d0d20;border:1px solid #222244;border-radius:16px;padding:30px;overflow-x:auto;position:relative}
+.bpmn-row{display:flex;align-items:center;justify-content:center;gap:0;margin:10px 0;min-width:fit-content}
+.bpmn-lane{border:1px solid #333;border-radius:12px;padding:16px;margin:8px 0;position:relative}
+.bpmn-lane-title{position:absolute;top:-12px;left:20px;background:#0d0d20;padding:0 10px;font-size:.8em;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.bpmn-node{display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:10px 16px;font-size:.85em;font-weight:500;min-width:120px;max-width:200px;margin:0 4px;position:relative}
+.bpmn-start{width:28px;height:28px;border-radius:50%;background:#4ade80;min-width:28px;max-width:28px;padding:0}
+.bpmn-end{width:28px;height:28px;border-radius:50%;background:#f87171;min-width:28px;max-width:28px;padding:0;border:3px solid #f87171;background:transparent}
+.bpmn-task{background:#1a2a3a;border:2px solid #3b82f6;border-radius:8px;color:#93c5fd}
+.bpmn-user{background:#2a1a3a;border:2px solid #a855f7;border-radius:8px;color:#c4b5fd}
+.bpmn-service{background:#1a3a2a;border:2px solid #22c55e;border-radius:8px;color:#86efac}
+.bpmn-send{background:#3a2a1a;border:2px solid #f59e0b;border-radius:8px;color:#fcd34d}
+.bpmn-receive{background:#1a2a3a;border:2px solid #06b6d4;border-radius:8px;color:#67e8f9}
+.bpmn-gateway{width:36px;height:36px;background:#1a1a3a;border:2px solid #fbbf24;transform:rotate(45deg);min-width:36px;max-width:36px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.bpmn-gateway span{transform:rotate(-45deg);font-size:16px;color:#fbbf24;font-weight:bold}
+.bpmn-event-sub{background:#1a1a3a;border:2px dashed #f87171;border-radius:8px;color:#fca5a5}
+.bpmn-arrow{color:#444;font-size:1.5em;margin:0 2px;flex-shrink:0}
+.bpmn-arrow-down{text-align:center;color:#444;font-size:1.5em;padding:4px 0}
+.bpmn-label{font-size:.75em;color:#666;text-align:center;margin-top:4px;position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.bpmn-parallel{display:flex;flex-direction:column;gap:8px}
+.bpmn-parallel-branch{display:flex;align-items:center;gap:0}
+.legend{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;padding:20px;margin:20px 0}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:.85em;color:#888}
+.legend-shape{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.legend-circle{border-radius:50%;border:2px solid}
+.legend-rect{border-radius:4px;border:2px solid}
+.legend-diamond{transform:rotate(45deg);width:18px;height:18px;border:2px solid}
+.flow-diagram{display:flex;flex-direction:column;align-items:center;gap:0}
+.flow-horizontal{display:flex;align-items:center;gap:0}
+.flow-branch{display:flex;gap:20px;margin:8px 0}
+.flow-branch-item{display:flex;flex-direction:column;align-items:center;gap:0}
+.annotation{background:#1a1a1a;border-left:3px solid #f0c27f;padding:12px 16px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.85em;color:#aaa;max-width:600px}
+.pool{border:2px solid #444;border-radius:8px;margin:10px 0;overflow:hidden}
+.pool-header{background:#1a1a2a;padding:8px 16px;font-size:.85em;font-weight:600;color:#888;border-bottom:1px solid #333}
+.pool-body{padding:16px}
+.footer{text-align:center;padding:40px;color:#333;font-size:.85em}
+@media(max-width:768px){.hero h1{font-size:1.6em}.bpmn-canvas{padding:16px}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🔄 BPMN 2.0 Process Diagrams</h1>
+  <p>Beauty & Shine ERP — Complete Business Process Flows</p>
+</div>
+
+<div class="controls">
+  <button class="active" onclick="showSection(this,'all')">All Processes</button>
+  <button onclick="showSection(this,'pos')">🛒 POS</button>
+  <button onclick="showSection(this,'inventory')">📦 Inventory</button>
+  <button onclick="showSection(this,'finance')">💰 Finance</button>
+  <button onclick="showSection(this,'operations')">⚙️ Operations</button>
+  <button onclick="showSection(this,'master')">📋 Master Data</button>
+  <button onclick="showSection(this,'reporting')">📈 Reporting</button>
+</div>
+
+<div class="container">
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-shape"><div class="legend-circle" style="border-color:#4ade80;width:16px;height:16px"></div></div> Start Event</div>
+  <div class="legend-item"><div class="legend-shape"><div class="legend-circle" style="border-color:#f87171;width:16px;height:16px"></div></div> End Event</div>
+  <div class="legend-item"><div class="legend-shape"><div class="legend-rect" style="border-color:#3b82f6;background:#1a2a3a;width:24px;height:16px"></div></div> Task</div>
+  <div class="legend-item"><div class="legend-shape"><div class="legend-rect" style="border-color:#a855f7;background:#2a1a3a;width:24px;height:16px"></div></div> User Task</div>
+  <div class="legend-item"><div class="legend-shape"><div class="legend-rect" style="border-color:#22c55e;background:#1a3a2a;width:24px;height:16px"></div></div> Service Task</div>
+  <div class="legend-item"><div class="legend-shape"><div class="legend-diamond" style="border-color:#fbbf24;width:16px;height:16px"></div></div> Gateway</div>
+  <div class="legend-item"><div class="legend-shape"><div class="legend-rect" style="border-color:#f59e0b;background:#3a2a1a;width:24px;height:16px"></div></div> Send</div>
+  <div class="legend-item"><div class="legend-shape"><div class="legend-rect" style="border-color:#06b6d4;background:#1a2a3a;width:24px;height:16px"></div></div> Receive</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BPMN 1: POS TRANSACTION -->
+<!-- ============================================================ -->
+<div class="bpmn-section" data-process="pos">
+  <h2>🛒 POS Transaction Process</h2>
+  <p>Complete flow from opening shift to daily closing</p>
+  
+  <div class="bpmn-canvas">
+    <!-- Pool: Cashier -->
+    <div class="pool">
+      <div class="pool-header">👤 Cashier</div>
+      <div class="pool-body">
+        <div class="flow-diagram">
+          <!-- Row 1: Start + Open Shift -->
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">🔐 Open Shift<br><span style="font-size:.75em;color:#666">Enter opening balance</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Verify Shift<br><span style="font-size:.75em;color:#666">System validates</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Shift Valid?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-task">📋 Ready for<br>Transactions</div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <!-- Row 2: Transaction Flow -->
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-user">🆕 New Transaction<br><span style="font-size:.75em;color:#666">Create TXN</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">💆 Select Treatment<br><span style="font-size:.75em;color:#666">Choose service</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">👤 Assign Staff<br><span style="font-size:.75em;color:#666">Choose therapist</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Add More?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">🎫 Apply Voucher?<br><span style="font-size:.75em;color:#666">Optional</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <!-- Row 3: Checkout -->
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-task">💰 Calculate Total<br><span style="font-size:.75em;color:#666">Subtotal + Discount + Tax</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Payment Method</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">💳 Process Payment<br><span style="font-size:.75em;color:#666">Cash/Card/Transfer</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Record Transaction<br><span style="font-size:.75em;color:#666">Save to DB</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <!-- Row 4: Post Transaction -->
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-service">📦 Update Inventory<br><span style="font-size:.75em;color:#666">Deduct stock</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📝 Create Journal<br><span style="font-size:.75em;color:#666">Auto accounting entry</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-send">🧾 Print Receipt<br><span style="font-size:.75em;color:#666">Thermal printer</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-send">💬 Send WhatsApp<br><span style="font-size:.75em;color:#666">Receipt to customer</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <!-- Row 5: Close -->
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">More Transactions?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">🔒 Close Shift<br><span style="font-size:.75em;color:#666">Cash count</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📊 Reconcile<br><span style="font-size:.75em;color:#666">Compare expected vs actual</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📋 Daily Closing<br><span style="font-size:.75em;color:#666">End of day report</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pool: System -->
+    <div class="pool">
+      <div class="pool-header">🖥️ System (Automated)</div>
+      <div class="pool-body">
+        <div class="flow-horizontal">
+          <div class="bpmn-node bpmn-service" style="font-size:.8em">Generate Doc Number</div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-service" style="font-size:.8em">Update Stock Level</div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-service" style="font-size:.8em">Post Journal Entry</div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-service" style="font-size:.8em">Update Dashboard KPI</div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-service" style="font-size:.8em">Send Notifications</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>Business Rules:</strong><br>
+      • Shift must be opened before any transaction<br>
+      • Stock deducted only after successful payment<br>
+      • Journal auto-posted: Debit Cash/Bank, Credit Revenue<br>
+      • Voucher balance reduced on use<br>
+      • Daily closing generates summary report
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BPMN 2: INVENTORY MANAGEMENT -->
+<!-- ============================================================ -->
+<div class="bpmn-section" data-process="inventory">
+  <h2>📦 Inventory Management Process</h2>
+  <p>Stock In → Storage → Stock Out → Reconciliation</p>
+  
+  <div class="bpmn-canvas">
+    <!-- Pool: Warehouse Staff -->
+    <div class="pool">
+      <div class="pool-header">👤 Warehouse Staff</div>
+      <div class="pool-body">
+        <div class="flow-diagram">
+          <!-- Stock In Flow -->
+          <div style="color:#4ade80;font-weight:600;margin-bottom:8px">📥 STOCK IN</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📋 Receive PO<br><span style="font-size:.75em;color:#666">Purchase Order</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">🔍 Inspect Goods<br><span style="font-size:.75em;color:#666">Quality check</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Quality OK?</div></div>
+          </div>
+          
+          <div class="bpmn-arrow-down">↓</div>
+          
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-user">📝 Record Stock In<br><span style="font-size:.75em;color:#666">Qty, batch, expiry</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Update Inventory<br><span style="font-size:.75em;color:#666">Add to stock</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📝 Create Journal<br><span style="font-size:.75em;color:#666">Debit Inventory</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+
+          <div style="height:20px"></div>
+
+          <!-- Stock Out Flow -->
+          <div style="color:#f87171;font-weight:600;margin-bottom:8px">📤 STOCK OUT (Consumption)</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📋 Create Request<br><span style="font-size:.75em;color:#666">Stock request form</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Stock Available?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📝 Record Stock Out<br><span style="font-size:.75em;color:#666">Qty, reason</span></div>
+          </div>
+          
+          <div class="bpmn-arrow-down">↓</div>
+          
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-service">✅ Update Inventory<br><span style="font-size:.75em;color:#666">Deduct stock</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Low Stock?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-send">🔔 Alert Manager<br><span style="font-size:.75em;color:#666">Reorder notification</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+
+          <div style="height:20px"></div>
+
+          <!-- Stock Opname Flow -->
+          <div style="color:#fbbf24;font-weight:600;margin-bottom:8px">📝 STOCK OPNAME</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📋 Count Physical<br><span style="font-size:.75em;color:#666">Manual count</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">🔍 Compare System<br><span style="font-size:.75em;color:#666">System vs Physical</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Match?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📝 Create Adjustment<br><span style="font-size:.75em;color:#666">If variance</span></div>
+          </div>
+          
+          <div class="bpmn-arrow-down">↓</div>
+          
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-user">✍️ Approve Adjustment<br><span style="font-size:.75em;color:#666">Manager approval</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Apply Adjustment<br><span style="font-size:.75em;color:#666">Update stock</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📝 Create Journal<br><span style="font-size:.75em;color:#666">Adjustment entry</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>Business Rules:</strong><br>
+      • Stock In requires Purchase Order reference<br>
+      • Stock Out auto-deducts from inventory<br>
+      • Low stock threshold triggers WhatsApp alert<br>
+      • Stock Opname requires manager approval for adjustments<br>
+      • All movements logged with timestamp and user
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BPMN 3: FINANCE / ACCOUNTING -->
+<!-- ============================================================ -->
+<div class="bpmn-section" data-process="finance">
+  <h2>💰 Finance & Accounting Process</h2>
+  <p>Journal Entry → Posting → Period Close → Financial Reports</p>
+  
+  <div class="bpmn-canvas">
+    <div class="pool">
+      <div class="pool-header">👤 Finance Staff</div>
+      <div class="pool-body">
+        <div class="flow-diagram">
+          <!-- Journal Entry Flow -->
+          <div style="color:#4ade80;font-weight:600;margin-bottom:8px">📓 JOURNAL ENTRY</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📓 Create Journal<br><span style="font-size:.75em;color:#666">Debit & Credit</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">⚖️ Validate Balance<br><span style="font-size:.75em;color:#666">Debit = Credit?</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Balanced?</div></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Needs Approval?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">✍️ Manager Approval<br><span style="font-size:.75em;color:#666">Review & approve</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Post Journal<br><span style="font-size:.75em;color:#666">Update ledger</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📊 Update Trial Balance<br><span style="font-size:.75em;color:#666">Recalculate</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+
+          <div style="height:20px"></div>
+
+          <!-- Auto Journal from POS -->
+          <div style="color:#a855f7;font-weight:600;margin-bottom:8px">🔄 AUTO JOURNAL (from POS)</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-receive">📥 Receive TXN<br><span style="font-size:.75em;color:#666">From POS system</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">🔍 Map to COA<br><span style="font-size:.75em;color:#666">Account mapping</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📓 Auto Create Journal<br><span style="font-size:.75em;color:#666">Debit Cash, Credit Revenue</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Auto Post<br><span style="font-size:.75em;color:#666">No approval needed</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+
+          <div style="height:20px"></div>
+
+          <!-- Period Close Flow -->
+          <div style="color:#fbbf24;font-weight:600;margin-bottom:8px">📅 PERIOD CLOSE</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📋 Check Pending<br><span style="font-size:.75em;color:#666">Unposted journals</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">All Posted?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📊 Generate Reports<br><span style="font-size:.75em;color:#666">P&L, Balance Sheet</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-user">✍️ Approve Close<br><span style="font-size:.75em;color:#666">Manager sign-off</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">🔒 Lock Period<br><span style="font-size:.75em;color:#666">No more edits</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📝 Create Opening Balance<br><span style="font-size:.75em;color:#666">Next period</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+
+          <div style="height:20px"></div>
+
+          <!-- Bank Reconciliation -->
+          <div style="color:#06b6d4;font-weight:600;margin-bottom:8px">🏦 BANK RECONCILIATION</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📤 Import Bank Statement<br><span style="font-size:.75em;color:#666">CSV/Excel upload</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">🔍 Auto Match<br><span style="font-size:.75em;color:#666">Match transactions</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📝 Manual Match<br><span style="font-size:.75em;color:#666">Unmatched items</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📊 Reconciliation Report<br><span style="font-size:.75em;color:#666">Summary</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>Business Rules:</strong><br>
+      • Journal entries must balance (Debit = Credit)<br>
+      • Entries above threshold require manager approval<br>
+      • POS transactions auto-generate journal entries<br>
+      • Period must be open to create entries<br>
+      • Closing locks period from further edits<br>
+      • Bank reconciliation runs monthly
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BPMN 4: OPERATIONS / BOOKING -->
+<!-- ============================================================ -->
+<div class="bpmn-section" data-process="operations">
+  <h2>⚙️ Operations & Booking Process</h2>
+  <p>Customer Booking → Assignment → Treatment → Completion</p>
+  
+  <div class="bpmn-canvas">
+    <!-- Pool: Customer -->
+    <div class="pool">
+      <div class="pool-header">👤 Customer</div>
+      <div class="pool-body">
+        <div class="flow-horizontal">
+          <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-user">📞 Book Appointment<br><span style="font-size:.75em;color:#666">Phone/Walk-in/WhatsApp</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-receive">📩 Receive Confirmation<br><span style="font-size:.75em;color:#666">WhatsApp/Email</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-user">🏥 Arrive at Branch<br><span style="font-size:.75em;color:#666">Check-in</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-user">💆 Receive Treatment<br><span style="font-size:.75em;color:#666">Service</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-user">💳 Pay<br><span style="font-size:.75em;color:#666">At counter</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pool: Front Desk -->
+    <div class="pool">
+      <div class="pool-header">👩‍💼 Front Desk</div>
+      <div class="pool-body">
+        <div class="flow-diagram">
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-receive">📞 Receive Booking<br><span style="font-size:.75em;color:#666">From customer</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">🔍 Check Availability<br><span style="font-size:.75em;color:#666">Staff + Room</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Available?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📅 Create Booking<br><span style="font-size:.75em;color:#666">Schedule</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-service">⏰ Send Reminder<br><span style="font-size:.75em;color:#666">WhatsApp H-1</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">✅ Check-in Customer<br><span style="font-size:.75em;color:#666">When arrives</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">👩 Assign Staff<br><span style="font-size:.75em;color:#666">Therapist</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">🛏️ Assign Room<br><span style="font-size:.75em;color:#666">Room/Bed</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📋 Create Transaction<br><span style="font-size:.75em;color:#666">POS link</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pool: Therapist -->
+    <div class="pool">
+      <div class="pool-header">💆 Therapist</div>
+      <div class="pool-body">
+        <div class="flow-horizontal">
+          <div class="bpmn-node bpmn-receive">📋 Receive Assignment<br><span style="font-size:.75em;color:#666">From front desk</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-user">🏥 Start Treatment<br><span style="font-size:.75em;color:#666">Begin service</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-task">⏳ Treatment in Progress<br><span style="font-size:.75em;color:#666">WIP tracking</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-user">✅ Complete Treatment<br><span style="font-size:.75em;color:#666">Sign off</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-service">📝 Update Record<br><span style="font-size:.75em;color:#666">Treatment notes</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancellation Flow -->
+    <div class="pool">
+      <div class="pool-header">❌ Cancellation Flow</div>
+      <div class="pool-body">
+        <div class="flow-horizontal">
+          <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-user">❌ Cancel Request<br><span style="font-size:.75em;color:#666">Customer/Staff</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-user">📝 Select Reason<br><span style="font-size:.75em;color:#666">Cancel reason code</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Refund?</div></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-service">💰 Process Refund<br><span style="font-size:.75em;color:#666">If applicable</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-service">🔄 Release Resources<br><span style="font-size:.75em;color:#666">Staff + Room</span></div>
+          <div class="bpmn-arrow">→</div>
+          <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>Business Rules:</strong><br>
+      • Booking checks both staff and room availability<br>
+      • Reminder sent 24 hours before appointment<br>
+      • Treatment tracked as WIP (Work in Progress)<br>
+      • Cancellation requires reason code<br>
+      • Refund processed if cancellation within policy<br>
+      • Resources released on cancellation
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BPMN 5: MASTER DATA MANAGEMENT -->
+<!-- ============================================================ -->
+<div class="bpmn-section" data-process="master">
+  <h2>📋 Master Data Management Process</h2>
+  <p>Create → Update → Deactivate master records</p>
+  
+  <div class="bpmn-canvas">
+    <div class="pool">
+      <div class="pool-header">👤 Data Admin</div>
+      <div class="pool-body">
+        <div class="flow-diagram">
+          <!-- Product Master -->
+          <div style="color:#4ade80;font-weight:600;margin-bottom:8px">🧴 PRODUCT MASTER</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📝 Create Product<br><span style="font-size:.75em;color:#666">Name, SKU, Category</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">💲 Set Pricing<br><span style="font-size:.75em;color:#666">Price list</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📊 Set BOM<br><span style="font-size:.75em;color:#666">Bill of Materials</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Validate<br><span style="font-size:.75em;color:#666">Duplicate check</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Valid?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">✍️ Approve<br><span style="font-size:.75em;color:#666">Manager review</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Activate<br><span style="font-size:.75em;color:#666">Available for sale</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📊 Sync to Branches<br><span style="font-size:.75em;color:#666">All locations</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+
+          <div style="height:20px"></div>
+
+          <!-- Staff Master -->
+          <div style="color:#a855f7;font-weight:600;margin-bottom:8px">👩 STAFF MASTER</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📝 Create Staff<br><span style="font-size:.75em;color:#666">Name, Role, Branch</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">🔑 Assign Role<br><span style="font-size:.75em;color:#666">Permissions</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">🏢 Assign Branch<br><span style="font-size:.75em;color:#666">Primary location</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Create Account<br><span style="font-size:.75em;color:#666">Login credentials</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+
+          <div style="height:20px"></div>
+
+          <!-- Bulk Import -->
+          <div style="color:#fbbf24;font-weight:600;margin-bottom:8px">📤 BULK IMPORT (COA Upload)</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📤 Upload File<br><span style="font-size:.75em;color:#666">CSV/Excel</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">🔍 Validate Data<br><span style="font-size:.75em;color:#666">Format, duplicates</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">All Valid?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📋 Review Errors<br><span style="font-size:.75em;color:#666">Fix & re-upload</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-user">✍️ Confirm Import<br><span style="font-size:.75em;color:#666">Preview data</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">✅ Execute Import<br><span style="font-size:.75em;color:#666">Bulk insert</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📊 Import Report<br><span style="font-size:.75em;color:#666">Success/fail count</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>Business Rules:</strong><br>
+      • SKU must be unique across all branches<br>
+      • Products require manager approval before activation<br>
+      • Staff accounts auto-created with role-based permissions<br>
+      • Bulk import validates before executing<br>
+      • Deactivated records preserved for audit trail
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BPMN 6: REPORTING -->
+<!-- ============================================================ -->
+<div class="bpmn-section" data-process="reporting">
+  <h2>📈 Reporting Process</h2>
+  <p>Data Collection → Analysis → Report Generation → Distribution</p>
+  
+  <div class="bpmn-canvas">
+    <div class="pool">
+      <div class="pool-header">👤 Manager / Admin</div>
+      <div class="pool-body">
+        <div class="flow-diagram">
+          <!-- Scheduled Report -->
+          <div style="color:#4ade80;font-weight:600;margin-bottom:8px">📊 SCHEDULED REPORTS</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-receive">⏰ Cron Trigger<br><span style="font-size:.75em;color:#666">Daily/Weekly/Monthly</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📊 Collect Data<br><span style="font-size:.75em;color:#666">Query database</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📈 Generate Report<br><span style="font-size:.75em;color:#666">Sales/Inventory/Finance</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📤 Export<br><span style="font-size:.75em;color:#666">PDF/Excel/CSV</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-send">📧 Email Report<br><span style="font-size:.75em;color:#666">To stakeholders</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-send">💬 WhatsApp Summary<br><span style="font-size:.75em;color:#666">Key metrics</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+
+          <div style="height:20px"></div>
+
+          <!-- Ad-hoc Report -->
+          <div style="color:#a855f7;font-weight:600;margin-bottom:8px">🔍 AD-HOC REPORT</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">🔍 Select Report Type<br><span style="font-size:.75em;color:#666">Sales/Inventory/P&L</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📅 Set Filters<br><span style="font-size:.75em;color:#666">Date, Branch, Category</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📊 Execute Query<br><span style="font-size:.75em;color:#666">Aggregate data</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-task">📈 Display Results<br><span style="font-size:.75em;color:#666">Charts + Tables</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Export?</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📤 Choose Format<br><span style="font-size:.75em;color:#666">CSV/XLSX/PDF/JSON</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📥 Download<br><span style="font-size:.75em;color:#666">Generate file</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+
+          <div style="height:20px"></div>
+
+          <!-- Financial Reports -->
+          <div style="color:#fbbf24;font-weight:600;margin-bottom:8px">💰 FINANCIAL STATEMENTS</div>
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-start"><div class="bpmn-label">Start</div></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">📅 Select Period<br><span style="font-size:.75em;color:#666">Month/Quarter/Year</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📊 Trial Balance<br><span style="font-size:.75em;color:#666">Debit vs Credit</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-gateway"><span>?</span><div class="bpmn-label">Balanced?</div></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-service">📉 Generate P&L<br><span style="font-size:.75em;color:#666">Income Statement</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">📋 Generate Balance Sheet<br><span style="font-size:.75em;color:#666">Assets = Liabilities + Equity</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service">💸 Cash Flow Statement<br><span style="font-size:.75em;color:#666">Operating/Investing/Financing</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user">✍️ Approve Reports<br><span style="font-size:.75em;color:#666">Manager sign-off</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-end"><div class="bpmn-label">End</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>Business Rules:</strong><br>
+      • Daily reports auto-generated at midnight<br>
+      • Weekly summary sent every Monday 8 AM<br>
+      • Monthly financial statements require period close<br>
+      • Trial balance must balance before generating P&L<br>
+      • All exports include timestamp and user info<br>
+      • Ad-hoc reports limited to user's branch access
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BPMN 7: CROSS-PROCESS INTEGRATION -->
+<!-- ============================================================ -->
+<div class="bpmn-section">
+  <h2>🔗 Cross-Process Integration Flow</h2>
+  <p>How all processes connect and trigger each other</p>
+  
+  <div class="bpmn-canvas">
+    <div class="pool">
+      <div class="pool-header">🌐 System Integration Map</div>
+      <div class="pool-body">
+        <div class="flow-diagram">
+          <!-- Main integration flow -->
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-task" style="background:#1a2a3a;border-color:#3b82f6">🛒 POS<br><span style="font-size:.75em;color:#666">Transaction</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service" style="background:#1a3a2a;border-color:#22c55e">📦 Inventory<br><span style="font-size:.75em;color:#666">Stock Deduction</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service" style="background:#2a1a3a;border-color:#a855f7">💰 Finance<br><span style="font-size:.75em;color:#666">Auto Journal</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service" style="background:#1a2a2a;border-color:#06b6d4">📈 Reporting<br><span style="font-size:.75em;color:#666">KPI Update</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-task" style="background:#2a1a2a;border-color:#ec4899">📋 Booking<br><span style="font-size:.75em;color:#666">Appointment</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service" style="background:#2a2a1a;border-color:#f59e0b">⚙️ Operations<br><span style="font-size:.75em;color:#666">Schedule + Room</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-task" style="background:#1a2a3a;border-color:#3b82f6">🛒 POS<br><span style="font-size:.75em;color:#666">Checkout</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-send" style="background:#1a3a1a;border-color:#4ade80">💬 WhatsApp<br><span style="font-size:.75em;color:#666">Receipt + Thank You</span></div>
+          </div>
+
+          <div class="bpmn-arrow-down">↓</div>
+
+          <div class="flow-horizontal">
+            <div class="bpmn-node bpmn-service" style="background:#1a3a2a;border-color:#22c55e">📦 Inventory<br><span style="font-size:.75em;color:#666">Low Stock Alert</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-send" style="background:#3a2a1a;border-color:#f59e0b">💬 WhatsApp<br><span style="font-size:.75em;color:#666">Alert Manager</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-user" style="background:#2a1a3a;border-color:#a855f7">📋 Master Data<br><span style="font-size:.75em;color:#666">Create PO</span></div>
+            <div class="bpmn-arrow">→</div>
+            <div class="bpmn-node bpmn-service" style="background:#2a1a3a;border-color:#a855f7">💰 Finance<br><span style="font-size:.75em;color:#666">Accounts Payable</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>Integration Points:</strong><br>
+      • POS → Inventory: Auto stock deduction on sale<br>
+      • POS → Finance: Auto journal entry on payment<br>
+      • POS → Reporting: Real-time KPI updates<br>
+      • Booking → Operations: Staff & room assignment<br>
+      • Operations → POS: Treatment record to checkout<br>
+      • Inventory → WhatsApp: Low stock alerts<br>
+      • Finance → Reporting: Financial data aggregation<br>
+      • All → Dashboard: Central KPI dashboard
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>Beauty & Shine ERP v6.0 — BPMN 2.0 Process Diagrams</p>
+  <p>Generated: <script>document.write(new Date().toLocaleString('id-ID'))</script></p>
+</div>
+
+<script>
+function showSection(btn,process){
+  document.querySelectorAll('.controls button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.bpmn-section').forEach(s=>{
+    if(process==='all'||s.dataset.process===process){
+      s.style.display='';
+    }else{
+      s.style.display='none';
+    }
+  });
+}
+</script>
+
+</body>
+</html>
