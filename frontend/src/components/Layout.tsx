@@ -1,33 +1,34 @@
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
+import Icon from './Icon';
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', icon: '📊', desc: 'KPI & Monitoring' },
-  { to: '/master', label: 'Master Data', icon: '📋', desc: 'Produk, Treatment, COA', children: [
-    { to: '/master/treatment', label: '💆 Treatments', icon: '💆', desc: 'Layanan & Perawatan' },
-    { to: '/master/product', label: '🧴 Products', icon: '🧴', desc: 'Produk & Stok' },
-    { to: '/master/branch', label: '🏢 Branches', icon: '🏢', desc: 'Cabang Bisnis' },
-    { to: '/master/user', label: '👩 Users', icon: '👩', desc: 'Pengguna & Akses' },
-    { to: '/master/customer', label: '👥 Customers', icon: '👥', desc: 'Data Pelanggan' },
-    { to: '/master/coa', label: '📒 Chart of Accounts', icon: '📒', desc: 'Kode Akun' },
-    { to: '/master/voucher', label: '🎫 Vouchers', icon: '🎫', desc: 'Voucher & Kupon' },
-    { to: '/master/promo', label: '🏷️ Promos', icon: '🏷️', desc: 'Promosi & Diskon' },
-    { to: '/master/treatment-category', label: '📂 Treatment Category', icon: '📂', desc: 'Kategori Treatment' },
-    { to: '/master/treatment-subcategory', label: '📂 Treatment Subcategory', icon: '📂', desc: 'Subkategori Treatment' },
-    { to: '/master/product-category', label: '📦 Product Category', icon: '📦', desc: 'Kategori Produk' },
-    { to: '/master/product-subcategory', label: '📦 Product Subcategory', icon: '📦', desc: 'Subkategori Produk' },
+  { to: '/', label: 'Dashboard', icon: 'dashboard', desc: 'KPI & Monitoring' },
+  { to: '/master', label: 'Master Data', icon: 'master', desc: 'Produk, Treatment, COA', children: [
+    { to: '/master/treatment', label: 'Treatments', icon: 'treatment', desc: 'Layanan & Perawatan' },
+    { to: '/master/product', label: 'Products', icon: 'product', desc: 'Produk & Stok' },
+    { to: '/master/branch', label: 'Branches', icon: 'branch', desc: 'Cabang Bisnis' },
+    { to: '/master/user', label: 'Users', icon: 'user', desc: 'Pengguna & Akses' },
+    { to: '/master/customer', label: 'Customers', icon: 'customer', desc: 'Data Pelanggan' },
+    { to: '/master/coa', label: 'Chart of Accounts', icon: 'coa', desc: 'Kode Akun' },
+    { to: '/master/voucher', label: 'Vouchers', icon: 'voucher', desc: 'Voucher & Kupon' },
+    { to: '/master/promo', label: 'Promos', icon: 'promo', desc: 'Promosi & Diskon' },
+    { to: '/master/treatment-category', label: 'Treatment Category', icon: 'category', desc: 'Kategori Treatment' },
+    { to: '/master/treatment-subcategory', label: 'Treatment Subcategory', icon: 'subcategory', desc: 'Subkategori Treatment' },
+    { to: '/master/product-category', label: 'Product Category', icon: 'category', desc: 'Kategori Produk' },
+    { to: '/master/product-subcategory', label: 'Product Subcategory', icon: 'subcategory', desc: 'Subkategori Produk' },
   ]},
-  { to: '/inventory', label: 'Inventory', icon: '📦', desc: 'Stok, BOM, Opname' },
-  { to: '/finance', label: 'Finance', icon: '💰', desc: 'Journal, GL, AP, Bank' },
-  { to: '/accounting', label: 'Accounting', icon: '📒', desc: 'COA Upload & Management', children: [
-    { to: '/coa-upload', label: 'COA Upload', icon: '📤', desc: 'Upload Chart of Accounts' },
-    { to: '/coa-management', label: 'COA Management', icon: '📊', desc: 'Kelola Akun & Mapping' },
+  { to: '/inventory', label: 'Inventory', icon: 'inventory', desc: 'Stok, BOM, Opname' },
+  { to: '/finance', label: 'Finance', icon: 'finance', desc: 'Journal, GL, AP, Bank' },
+  { to: '/accounting', label: 'Accounting', icon: 'accounting', desc: 'COA Upload & Management', children: [
+    { to: '/coa-upload', label: 'COA Upload', icon: 'upload', desc: 'Upload Chart of Accounts' },
+    { to: '/coa-management', label: 'COA Management', icon: 'management', desc: 'Kelola Akun & Mapping' },
   ]},
-  { to: '/reporting', label: 'Laporan', icon: '📈', desc: 'Sales, Inventory, Finance' },
-  { to: '/period', label: 'Periode', icon: '📅', desc: 'Lock & Closing' },
-  { to: '/exceptions', label: 'Exception', icon: '⚠️', desc: 'Penanganan Masalah' },
-  { to: '/operations', label: 'Operations', icon: '⚙️', desc: 'WIP, Schedule, Pricelist, Settlement' },
+  { to: '/reporting', label: 'Laporan', icon: 'reporting', desc: 'Sales, Inventory, Finance' },
+  { to: '/period', label: 'Periode', icon: 'period', desc: 'Lock & Closing' },
+  { to: '/exceptions', label: 'Exception', icon: 'exception', desc: 'Penanganan Masalah' },
+  { to: '/operations', label: 'Operations', icon: 'operations', desc: 'WIP, Schedule, Pricelist, Settlement' },
 ];
 
 function NavGroup({ item }: { item: typeof NAV_ITEMS[number] }) {
@@ -44,7 +45,7 @@ function NavGroup({ item }: { item: typeof NAV_ITEMS[number] }) {
           isExpanded ? 'text-gray-900 font-semibold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
         }`}
       >
-        <span className="text-lg w-7 text-center">{item.icon}</span>
+        <span className="w-7 text-center"><Icon name={item.icon} size={20} /></span>
         <div className="flex-1 text-left">
           <div>{item.label}</div>
           <div className="text-[10px] text-gray-400 font-normal">{item.desc}</div>
@@ -211,7 +212,7 @@ export default function Layout() {
                   }`
                 }
               >
-                <span className="text-lg w-7 text-center">{item.icon}</span>
+                <span className="w-7 text-center"><Icon name={item.icon} size={20} /></span>
                 <div>
                   <div>{item.label}</div>
                   <div className="text-[10px] text-gray-400 font-normal">{item.desc}</div>
@@ -224,8 +225,8 @@ export default function Layout() {
         {/* Footer */}
         <div className="p-4 border-t border-gray-100">
           <div className="flex items-center gap-3 px-2">
-            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs">
-              👤
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+              <Icon name="user" size={16} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-medium text-gray-900 truncate">Admin</div>

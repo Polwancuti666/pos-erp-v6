@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { fetchJSON } from '../api/client';
 import { useNavigate } from 'react-router-dom';
+import Icon from '../components/Icon';
 
 // Generic interfaces
 interface BaseItem {
@@ -135,7 +136,7 @@ const MODULE_CONFIG: Record<string, {
 }> = {
   treatment: {
     title: 'Treatments',
-    icon: '💆',
+    icon: 'treatment',
     apiPath: 'treatment',
     columns: [
       { key: 'name', label: 'Name' },
@@ -156,7 +157,7 @@ const MODULE_CONFIG: Record<string, {
   },
   product: {
     title: 'Products',
-    icon: '🧴',
+    icon: 'product',
     apiPath: 'product',
     columns: [
       { key: 'sku', label: 'SKU' },
@@ -180,7 +181,7 @@ const MODULE_CONFIG: Record<string, {
   },
   branch: {
     title: 'Branches',
-    icon: '🏢',
+    icon: 'branch',
     apiPath: 'branch',
     columns: [
       { key: 'code', label: 'Code' },
@@ -198,7 +199,7 @@ const MODULE_CONFIG: Record<string, {
   },
   user: {
     title: 'Users',
-    icon: '👩',
+    icon: 'user',
     apiPath: 'user',
     columns: [
       { key: 'user_code', label: 'Code', render: (item) => item.user_code || '-' },
@@ -225,7 +226,7 @@ const MODULE_CONFIG: Record<string, {
   },
   customer: {
     title: 'Customers',
-    icon: '👥',
+    icon: 'customer',
     apiPath: 'customer',
     columns: [
       { key: 'name', label: 'Name' },
@@ -244,7 +245,7 @@ const MODULE_CONFIG: Record<string, {
   },
   coa: {
     title: 'Chart of Accounts',
-    icon: '📒',
+    icon: 'coa',
     apiPath: 'coa',
     columns: [
       { key: 'account_code', label: 'Code', render: (item) => item.account_code || item.code || '-' },
@@ -269,7 +270,7 @@ const MODULE_CONFIG: Record<string, {
   },
   voucher: {
     title: 'Vouchers',
-    icon: '🎫',
+    icon: 'voucher',
     apiPath: 'voucher',
     columns: [
       { key: 'code', label: 'Code' },
@@ -295,7 +296,7 @@ const MODULE_CONFIG: Record<string, {
   },
   promo: {
     title: 'Promos',
-    icon: '🏷️',
+    icon: 'promo',
     apiPath: 'promotion',
     columns: [
       { key: 'name', label: 'Name' },
@@ -325,7 +326,7 @@ const MODULE_CONFIG: Record<string, {
   },
   'treatment-category': {
     title: 'Treatment Categories',
-    icon: '📂',
+    icon: 'category',
     apiPath: 'treatment-category',
     columns: [
       { key: 'name', label: 'Name' },
@@ -340,7 +341,7 @@ const MODULE_CONFIG: Record<string, {
   },
   'treatment-subcategory': {
     title: 'Treatment Subcategories',
-    icon: '📂',
+    icon: 'category',
     apiPath: 'treatment-subcategory',
     columns: [
       { key: 'name', label: 'Name' },
@@ -354,7 +355,7 @@ const MODULE_CONFIG: Record<string, {
   },
   'product-category': {
     title: 'Product Categories',
-    icon: '📦',
+    icon: 'product',
     apiPath: 'product-category',
     columns: [
       { key: 'name', label: 'Name' },
@@ -369,7 +370,7 @@ const MODULE_CONFIG: Record<string, {
   },
   'product-subcategory': {
     title: 'Product Subcategories',
-    icon: '📦',
+    icon: 'product',
     apiPath: 'product-subcategory',
     columns: [
       { key: 'name', label: 'Name' },
@@ -536,7 +537,7 @@ export default function MasterModulePage({ module }: { module: string }) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-            <span className="text-3xl">{config.icon}</span>
+            <span><Icon name={config.icon} size={32} /></span>
             {config.title}
           </h1>
           <p className="text-sm text-gray-500 mt-1">{filteredItems.length} items</p>
