@@ -4,7 +4,20 @@ import { api } from '../api/client';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: '📊', desc: 'KPI & Monitoring' },
-  { to: '/master', label: 'Master Data', icon: '📋', desc: 'Produk, Treatment, COA' },
+  { to: '/master', label: 'Master Data', icon: '📋', desc: 'Produk, Treatment, COA', children: [
+    { to: '/master/treatment', label: '💆 Treatments', icon: '💆', desc: 'Layanan & Perawatan' },
+    { to: '/master/product', label: '🧴 Products', icon: '🧴', desc: 'Produk & Stok' },
+    { to: '/master/branch', label: '🏢 Branches', icon: '🏢', desc: 'Cabang Bisnis' },
+    { to: '/master/user', label: '👩 Users', icon: '👩', desc: 'Pengguna & Akses' },
+    { to: '/master/customer', label: '👥 Customers', icon: '👥', desc: 'Data Pelanggan' },
+    { to: '/master/coa', label: '📒 Chart of Accounts', icon: '📒', desc: 'Kode Akun' },
+    { to: '/master/voucher', label: '🎫 Vouchers', icon: '🎫', desc: 'Voucher & Kupon' },
+    { to: '/master/promo', label: '🏷️ Promos', icon: '🏷️', desc: 'Promosi & Diskon' },
+    { to: '/master/treatment-category', label: '📂 Treatment Category', icon: '📂', desc: 'Kategori Treatment' },
+    { to: '/master/treatment-subcategory', label: '📂 Treatment Subcategory', icon: '📂', desc: 'Subkategori Treatment' },
+    { to: '/master/product-category', label: '📦 Product Category', icon: '📦', desc: 'Kategori Produk' },
+    { to: '/master/product-subcategory', label: '📦 Product Subcategory', icon: '📦', desc: 'Subkategori Produk' },
+  ]},
   { to: '/inventory', label: 'Inventory', icon: '📦', desc: 'Stok, BOM, Opname' },
   { to: '/finance', label: 'Finance', icon: '💰', desc: 'Journal, GL, AP, Bank' },
   { to: '/accounting', label: 'Accounting', icon: '📒', desc: 'COA Upload & Management', children: [
